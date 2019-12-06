@@ -1,0 +1,23 @@
+{
+    "populationMax": 100,
+    "generations": 100,
+    "distanceCoeff1": 1.0,
+    "distanceCoeff2": 1.0,
+    "distanceCoeff3": 0.4,
+    "distanceThreshold": 5.5,
+    "smallGenomeCoeff": 10,
+    "percentageOffspringWithoutCrossover": 25,
+    "probInterspeciesMating": 0.001,
+    "sp_probAddingNewNode": 0.0008,
+    "sp_probAddingNewConnection": 0.0008,
+    "lp_probAddingNewNode": 0.0009,
+    "lp_probAddingNewConnection": 0.0009,
+    "probMutateEnableConnection": 0,
+    "largePopulationDiscriminator": 10,
+    "probChangeWeight": 0.3,
+    "probChangeNodeFunction": 0.1,
+    "survivalSelection": true,
+	"allowClones": true,
+	"survivalThreshold": 0.3,
+	"eliteOffspringParam": 0.1
+}
