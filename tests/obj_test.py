@@ -1,17 +1,28 @@
+import random, sys
+
 class Guges:
-    a = 0
-    b = []
 
-def mutate(guge):
-    guge.a = 1
-    guge.b.append(2)
+    def __init__(self):
+        self.a = 0
+        self.b = []
 
-def append_obj(guga):
+    def mutate(self):
+        num = random.randint(0, 10)
+        self.a = num
+        self.b.append(num)
+    
+def append_obj(arr):
     gugu = Guges()
-    guga.append(gugu)
+    gugu.mutate()
+    arr.append(gugu)
 
 arr = []
+tup = (0, 1)
+print(tup[1])
+sys.exit()
+print(arr)
+for i in range(10):
+    append_obj(arr)
 
-print(arr)
-append_obj(arr)
-print(arr)
+for x, y in enumerate(arr):
+    print(x)
