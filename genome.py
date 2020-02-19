@@ -20,9 +20,15 @@ class Genome:
 
     def add_node(self, node_gene):
         for pos, val in enumerate(self.node_list):
+            # Node already exist
             if val.gene_id == node_gene.gene_id:
                 self.node_list[pos].randomize_function()
                 return 1
+
+        if node_gene.node_type == NodeType.INPUT:
+            self.num_inputs += 1
+        elif node_gene.node_type == NodeType.OUTPUT:
+            self.num_outputs += 1
 
         self.node_list.append(node_gene)
         return 0
@@ -45,14 +51,7 @@ class Genome:
 
         for neuron in data['GeneticEncoding']['nodes']:
             node_gene = NodeGene(neuron['nodeID'], neuron['type'], ActivationFunction().get(neuron['function']))
-
-            # Node already exist
-            if self.add_node(node_gene) == 1:
-                continue
-            if neuron['type'] == NodeType.INPUT:
-                self.num_inputs += 1
-            elif neuron['type'] == NodeType.OUTPUT:
-                self.num_outputs += 1
+            self.add_node(node_gene)
 
         for connection in data['GeneticEncoding']['connections']:
             connection_gene = ConnectionGene(connection['innovation'], connection['in'], connection['out'], connection['weight'], connection['enable'])
@@ -94,5 +93,8 @@ class Genome:
 
     def randomize_weights(self):
         for conn in self.connection_list:
-            conn.weight = random.uniform(-1.0, 1.0)
-
+            conn.randomize_weight()
+    
+    def randomize_functions(self):
+        for node in self.node_list:
+            node.randomize_function()

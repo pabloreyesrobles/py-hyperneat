@@ -1,0 +1,16 @@
+{
+	"GeneticEncoding":
+	{
+		"nodes":
+		[
+			{"exist": true, "nodeID": 0, "type": 0, "row": 0, "function": "SIGNED_SIGMOID"},
+			{"exist": true, "nodeID": 1, "type": 0, "row": 0, "function": "SIGNED_SIGMOID"},
+			{"exist": true, "nodeID": 2, "type": 2, "row": 1, "function": "SIGNED_SIGMOID"}
+		],
+		"connections":
+		[
+			{"exist": true, "innovation": 0, "in": 0, "out": 2, "weight": 0.1, "enable": 1},
+			{"exist": true, "innovation": 1, "in": 1, "out": 2, "weight": 0.2, "enable": 1}
+		]
+	}
+}

@@ -7,6 +7,7 @@ from neural_network import Neuron, Connection, NeuralNetwork
 import json
 import copy
 import random
+import math
 from dataclasses import dataclass
 
 @dataclass
@@ -59,8 +60,11 @@ class Population:
 
 		self.current_generation = 0
 		self.champion_fitness = 0.0
+		self.best_historical_fitness = 0.0
+
 		self.global_innovation_count = 0
 		self.global_node_count = 0
+		self.global_species_count = 0
 
 		self.organisms = []
 		self.current_species = []
@@ -200,6 +204,90 @@ class Population:
 		
 		return self.params.distance_coeff_1 * excess / divisor + self.params.distance_coeff_2 * disjoint / divisor + self.params.distance_coeff_3 * var_weight * small_genomes_buff
 
+	def crossover(self, org_A, org_B):
+		# Iterator used to navigate through connection_list and node_list independently for each organism. TODO: use iter()
+		itr_A = 0
+		itr_B = 0
+
+		# connection_gene's and node_gene's to be selected as a result of crossover
+		conn_A = org_A.connection_list[itr_A]
+		conn_B = org_A.connection_list[itr_B]
+
+		node_A = org_A.node_list[itr_A]
+		node_B = org_B.node_list[itr_B]
+		
+		# Output genome of the crossover operation
+		new_organism = Genome()
+
+		# Start iterate over genomes to explore the connection_list
+		while True:
+			if conn_A.innovation > conn_B.innovation:
+				new_organism.add_connection(conn_B)
+				itr_B += 1
+			elif conn_A.innovation == conn_B.innovation:
+				if conn_A.enable == True and conn_B.enable == True:
+					new_organism.add_connection(random.choice([conn_A, conn_B]))
+				elif conn_A.enable == True:
+					new_organism.add_connection(conn_A)
+				else:
+					new_organism.add_connection(conn_B)
+
+				itr_A += 1
+				itr_B += 1
+			else:
+				new_organism.add_connection(conn_A)
+				itr_A += 1
+
+			# If iterator is bigger than any of the genome, it means excess
+			if itr_A >= len(org_A.connection_list):
+				while itr_B < len(org_B.connection_list):
+					new_organism.add_connection(org_B.connection_list[itr_B])
+					itr_B += 1
+				break
+
+			if itr_B >= len(org_B.connection_list):
+				while itr_A < len(org_A.connection_list):
+					new_organism.add_connection(org_A.connection_list[itr_A])
+					itr_A += 1
+				break
+
+			conn_A = org_A.connection_list[itr_A]
+			conn_B = org_B.connection_list[itr_B]
+
+		itr_A = 0
+		itr_B = 0
+		
+		# Now iterate over node_list
+		while True:
+			if node_A.gene_id > node_B.gene_id:
+				new_organism.add_node(node_B)
+				itr_B += 1
+			elif node_A.gene_id == node_B.gene_id:
+				new_organism.add_node(random.choice([node_A, node_B]))
+				itr_A += 1
+				itr_B += 1
+			else:
+				new_organism.add_node(node_A)
+				itr_A += 1
+
+			# If iterator is bigger than any of the genome, it means excess
+			if itr_A >= len(org_A.node_list):
+				while itr_B < len(org_B.node_list):
+					new_organism.add_node(org_B.node_list[itr_B])
+					itr_B += 1
+				break
+
+			if itr_B >= len(org_B.node_list):
+				while itr_A < len(org_A.node_list):
+					new_organism.add_node(org_A.node_list[itr_A])
+					itr_A += 1
+				break
+
+			node_A = org_A.node_list[itr_A]
+			node_B = org_B.node_list[itr_B]
+
+		return new_organism
+
 	def speciate(self, organism_list, species_list):
 		for spec in species_list:
 			spec.organisms = []
@@ -211,6 +299,8 @@ class Population:
 				new_species = Species()
 				new_species.organisms.append(org)
 				new_species.representant = org
+				new_species.birth = self.global_species_count # TODO: a method to assign and post-update new count
+				self.global_species_count += 1
 
 				species_list.append(new_species)
 			else:
@@ -224,6 +314,8 @@ class Population:
 					new_species = Species()
 					new_species.organisms.append(org)
 					new_species.representant = org
+					new_species.birth = self.global_species_count # TODO: a method to assign and post-update new count
+					self.global_species_count += 1
 
 					species_list.append(new_species)
 	
@@ -232,8 +324,7 @@ class Population:
 			return
 		
 		# Select connection to replace
-		connection_id = random.randint(0, len(organism.connection_list) - 1)
-		connection_replace = organism.connection_list[connection_id]
+		connection_replace = random.choice(organism.connection_list)
 
 		if connection_replace.innovation < 0 or connection_replace.enable == False:
 			return
@@ -285,7 +376,7 @@ class Population:
 			return
 
 		# Check for loops in the net
-		if self.check_loops(organism, input_candidate, output_candidate) is True:
+		if self.check_loops(organism, input_candidate.gene_id, output_candidate.gene_id) is True:
 			return
 		
 		# Make sure the connection doesn't exist already
@@ -314,6 +405,16 @@ class Population:
 		else:
 			organism.connection_list[connection_index].randomize_weight
 
+	def mutate_connection_weight(self, organism):
+		for conn in organism.connection_list:
+			if random.uniform(0, 1) < self.prob.mutation_weight:
+				conn.randomize_weight()
+	
+	def mutate_node_functions(self, organism):
+		for node in organism.node_list:
+			if random.uniform(0, 1) < self.prob.mutate_activation:
+				node.randomize_function()
+
 	def check_loops(self, organism, inspect, itr):
 		for conn in organism.connection_list:
 			if conn.incoming == itr:
@@ -323,3 +424,118 @@ class Population:
 					self.check_loops(organism, inspect, conn.outgoing)
 		
 		return False
+
+	def sort_species_by_fitness(self):
+		self.current_species.sort(key=lambda x: x.best_fitness, reverse=True)
+
+	# TODO:
+	# Best_fitness, historical_fitness, age mechanism needed
+	# champion_species tracking
+	# stagnation respect to best historical fitness
+	def epoch(self):
+		#temp_species = copy.deepcopy(self.current_species)
+
+		pop_shared_fitness = 0.0
+		pop_avg_shared_fitness = 0.0
+
+		for sp in self.current_species:
+			sp.sort_by_fitness()
+			sp.update_champion()
+
+			sp.age += 1
+			sp.offspring = 0.0
+			sp.avg_fitness = 0.0
+
+			if sp.best_fitness >= self.champion_fitness:
+				self.champion_fitness = sp.best_fitness
+				#self.champion = True
+
+			for org in sp.organisms:
+				org.shared_fitness = org.fitness / len(sp.organisms)
+				sp.avg_fitness += org.shared_fitness		
+			
+			pop_shared_fitness += sp.avg_fitness
+
+		pop_avg_shared_fitness = pop_shared_fitness / self.params.population_max
+		self.sort_species_by_fitness()
+
+		for sp in self.current_species:
+			for org in sp.organisms:
+				sp.offspring += org.shared_fitness / pop_avg_shared_fitness
+
+		new_population = self.reproduce(self.current_species)
+		self.speciate(new_population, self.current_species)
+
+		population_in_species = 0
+		for sp in self.current_species:
+			if len(sp.organisms) == 0:
+				self.current_species.remove(sp)
+				continue
+			population_in_species += len(sp.organisms)
+		
+		if population_in_species < self.params.population_max:
+			while population_in_species < self.params.population_max:
+				#random_species = random.choice(self.current_species)
+
+				random_org = copy.deepcopy(self.current_species[0].organisms[0])
+				random_org.randomize_weights()
+
+				self.current_species[0].organisms.append(random_org)
+				population_in_species += 1
+		
+		self.current_generation += 1
+	
+	def reproduce(self, species):
+		new_population = []
+
+		for sp in species:
+			offspring_amount = math.floor(sp.offspring)
+
+			if offspring_amount == 0:
+				continue
+
+			elite_offspring = round(len(sp.organisms) * self.params.elite_offspring_param)
+			elite_count = 0
+
+			while offspring_amount > 0:
+				if elite_count < elite_offspring:
+					# Assuming sp.organisms ordered by fitness
+					son = sp.organisms[elite_count]
+					elite_count += 1
+				else:
+					random_mother = copy.deepcopy(random.choice(sp.organisms))
+
+					if random.uniform(0, 1) < self.params.no_crossover_offspring:
+						self.mutate_connection_weight(random_mother)
+						son = random_mother
+					else:
+						if random.uniform(0, 1) < self.prob.interspecies_mating and len(species) > 1:
+							while True:
+								father_species = random.choice(species)
+								if(sp != father_species):
+									random_father = random.choice(father_species.organisms)
+									break
+							son = self.crossover(random_mother, random_father)
+						else:
+							if len(sp.organisms) == 1:
+								self.mutate_connection_weight(random_mother)
+								son = random_mother
+							else:
+								while True:
+									random_father = random.choice(sp.organisms)
+									if(random_mother is not random_father or self.params.allow_clones):
+										break
+								son = self.crossover(random_mother, random_father)
+					
+					if random.uniform(0, 1) < self.prob.lp_new_node:
+						self.mutate_add_node(son)
+					
+					if random.uniform(0, 1) < self.prob.lp_new_connection:
+						self.mutate_add_connection(son)
+
+					self.mutate_node_functions(son)
+
+				offspring_amount -= 1	
+				new_population.append(son)
+		
+		return new_population
