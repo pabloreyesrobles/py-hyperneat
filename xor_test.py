@@ -10,21 +10,25 @@ def fitness(org):
     net = org.build_phenotype()
 
     logic = [0, 0]
+    net.reset_values()
     net.input(logic)
     net.recursive_activation(net.num_inputs)
     error += math.fabs(net.output()[0])
 
     logic = [0, 1]
+    net.reset_values()
     net.input(logic)
     net.recursive_activation(net.num_inputs)
     error += math.fabs(1 - net.output()[0])
 
     logic = [1, 0]
+    net.reset_values()
     net.input(logic)
     net.recursive_activation(net.num_inputs)
     error += math.fabs(1 - net.output()[0])
 
     logic = [1, 1]
+    net.reset_values()
     net.input(logic)
     net.recursive_activation(net.num_inputs)
     error += math.fabs(net.output()[0])
@@ -40,18 +44,14 @@ pop.start_generation(genome, params)
 for i in range(pop.params.generations):
     avg_fitness = 0.0
 
-    print('Species = {:d}'.format(len(pop.current_species)))
     for sp in pop.current_species:
-
-        print('Organisms = {:d}'.format(len(sp.organisms)))
         for org in sp.organisms:
             try:
                 org.fitness = fitness(org)
+                avg_fitness += org.fitness
             except:
                 print(org)
-                sys.exit()
+                raise Exception('Error in organism')
     
+    print('Species = {:d}, champion_fitness: {:f}, avg_fitness: {:f}'.format(len(pop.current_species), pop.champion_fitness, avg_fitness / pop.params.population_max))
     pop.epoch()
-    for sp in pop.current_species:
-        avg_fitness += sp.avg_fitness
-    print('Generation #{:d} average fitness {:f}'.format(i, (avg_fitness / len(pop.current_species))))

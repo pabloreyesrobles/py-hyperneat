@@ -10,10 +10,12 @@ class NodeType:
 
 class ConnectionGene:
 
-    def __init__(self, innovation = -1, incoming = -1, outgoing = -1, weight = 0.0, enable = False):
+    def __init__(self, innovation = -1, incoming = -1, outgoing = -1, weight = 0.0, enable = False, source_layer = -1, target_layer = -1):
         self.innovation = innovation
         self.incoming = incoming
         self.outgoing = outgoing
+        self.source_layer = source_layer
+        self.target_layer = target_layer
         self.weight = weight
         self.enable = enable
 
@@ -25,7 +27,7 @@ class ConnectionGene:
 
 class NodeGene:
 
-    def __init__(self, gene_id, node_type, function):
+    def __init__(self, gene_id, node_type, function, layer = -1):
         self.gene_id = gene_id
         self.node_type = node_type
         self.function = function

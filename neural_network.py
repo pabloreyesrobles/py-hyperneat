@@ -4,21 +4,24 @@ from activation_functions import ActivationFunction
 
 class Neuron:
 
-    def __init__(self, function):
+    def __init__(self, function, layer = -1):
         self.input = 0.0
         self.output = 0.0
         self.activated = False
         self.incoming = False
         self.function = function
+        self.layer = layer
 
     def activate(self):
         self.output = self.function(self.input)
 
 class Connection:
 
-    def __init__(self, source_id, target_id, weight):
+    def __init__(self, source_id, target_id, weight, source_layer = -1, target_layer = -1):
         self.source_id = source_id
         self.target_id = target_id
+        self.source_layer = source_layer
+        self.target_layer = target_layer
         self.weight = weight
         self.signal = 0.0
 
@@ -98,3 +101,34 @@ class NeuralNetwork:
         for i in range(len(self.neurons)):
             print('Neuron ' + str(i))
             print('input: ' + str(self.neurons[i].input) + ' - output: ' + str(self.neurons[i].output))
+
+# TODO: improve inheritance
+class LayeredNetwork(NeuralNetwork):
+
+    def __init__(self, neurons, connections, num_inputs, num_outputs, layers):
+        super.__init__(neurons, connections, num_inputs, num_outputs)
+
+        self.layers = layers
+        self.connections_by_origin = [[] for i in range(len(self.layers))]
+
+        for conn in self.connections:
+            self.connections_by_origin[conn.source_layer].append[conn]
+
+    def activate_net(self):
+        for i in range(len(self.layers)):
+            for neuron in self.layers[i]:
+                neuron.Activate()
+            
+            for connection in self.connections_by_origin[i]:
+                connection.signal = 
+
+        for i in range(len(self.connections)):
+            self.connections[i].signal = self.neurons[self.connections[i].source_id].output * self.connections[i].weight
+        for i in range(len(self.connections)):
+            self.neurons[self.connections[i].target_id].input += self.connections[i].signal
+        for i in range(0, len(self.neurons)):
+            self.neurons[i].Activate()
+
+    def input(self, input_data):
+        for i in range(self.num_inputs):
+            self.neurons[i].input = input_data[i]

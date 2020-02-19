@@ -467,22 +467,23 @@ class Population:
 		self.speciate(new_population, self.current_species)
 
 		population_in_species = 0
+		new_species_population = []
 		for sp in self.current_species:
-			if len(sp.organisms) == 0:
-				self.current_species.remove(sp)
-				continue
-			population_in_species += len(sp.organisms)
+			if len(sp.organisms) != 0:
+				new_species_population.append(sp)
+				population_in_species += len(sp.organisms)
 		
 		if population_in_species < self.params.population_max:
 			while population_in_species < self.params.population_max:
 				#random_species = random.choice(self.current_species)
 
-				random_org = copy.deepcopy(self.current_species[0].organisms[0])
+				random_org = copy.deepcopy(new_species_population[0].organisms[0])
 				random_org.randomize_weights()
 
-				self.current_species[0].organisms.append(random_org)
+				new_species_population[0].organisms.append(random_org)
 				population_in_species += 1
 		
+		self.current_species = new_species_population
 		self.current_generation += 1
 	
 	def reproduce(self, species):

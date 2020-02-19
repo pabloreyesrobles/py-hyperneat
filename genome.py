@@ -1,10 +1,14 @@
 from genes import ConnectionGene, NodeGene, NodeType
-from neural_network import Neuron, Connection, NeuralNetwork
+from neural_network import Neuron, Connection, NeuralNetwork, LayeredNetwork
 from activation_functions import ActivationFunction
 
 import json
 import random
 import copy
+
+class Phenotype:
+    NONE = 0
+    LAYERED_NETWORK = 1
 
 class Genome:
 
@@ -17,6 +21,9 @@ class Genome:
 
         self.fitness = 0.0
         self.shared_fitness = 0.0
+        
+        self.phenotype_behaviour = Phenotype.NONE
+        self.num_layers = 0
 
     def add_node(self, node_gene):
         for pos, val in enumerate(self.node_list):
@@ -50,12 +57,18 @@ class Genome:
             return False
 
         for neuron in data['GeneticEncoding']['nodes']:
-            node_gene = NodeGene(neuron['nodeID'], neuron['type'], ActivationFunction().get(neuron['function']))
+            node_gene = NodeGene(neuron['nodeID'], neuron['type'], ActivationFunction().get(neuron['function']), neuron['row'])
             self.add_node(node_gene)
 
         for connection in data['GeneticEncoding']['connections']:
-            connection_gene = ConnectionGene(connection['innovation'], connection['in'], connection['out'], connection['weight'], connection['enable'])
+            source_layer = self.node_list[connection['in']].layer
+            target_layer = self.node_list[connection['out']].layer
+            connection_gene = ConnectionGene(connection['innovation'], connection['in'], connection['out'], connection['weight'], connection['enable'], source_layer, target_layer)
             self.add_connection(connection_gene)
+        
+        self.phenotype = data['phenotype']
+        if self.phenotype == Phenotype.LAYERED_NETWORK:
+            self.num_layers = data['num_layers']
 
         return True
 
@@ -98,3 +111,29 @@ class Genome:
     def randomize_functions(self):
         for node in self.node_list:
             node.randomize_function()
+
+    # TODO: merge it with build_phenotype depending on self.phenotype
+    def build_layered_phenotype(self):
+        layers = [[] for i in range(self.num_layers)]
+        conn_map = {}
+
+        neurons = []
+        for node_gene in self.node_list:
+            conn_map[node_gene.gene_id] = len(layers[node_gene.layer])
+            neuron = Neuron(node_gene.function, node_gene.layer)
+
+            neurons.append(neuron)
+            layers[node_gene.layer].append(neuron)
+        
+        connections = []
+        for connection_gene in self.connection_list:
+            if connection_gene.innovation == -1 or connection_gene.enable == False:
+                continue
+            connection = Connection(conn_map[connection_gene.source_id],
+                                    conn_map[connection_gene.target_id],
+                                    connection_gene.weight,
+                                    connection_gene.source_layer,
+                                    connection_gene.target_layer)
+            connections.append(connection)
+        
+        return LayeredNetwork(neurons, connections, self.num_inputs, self.num_outputs, layers)

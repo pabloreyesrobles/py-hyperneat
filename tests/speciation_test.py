@@ -7,3 +7,5 @@ pop = Population()
 pop.start_generation(genome, params)
 
 print(pop.current_species)
+
+

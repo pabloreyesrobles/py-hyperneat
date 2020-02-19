@@ -1,5 +1,5 @@
 {
-    "populationMax": 100,
+    "populationMax": 15,
     "generations": 100,
     "distanceCoeff1": 1.0,
     "distanceCoeff2": 1.0,
