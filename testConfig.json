@@ -1,10 +1,10 @@
 {
-    "populationMax": 15,
+    "populationMax": 100,
     "generations": 100,
     "distanceCoeff1": 1.0,
     "distanceCoeff2": 1.0,
     "distanceCoeff3": 0.4,
-    "distanceThreshold": 7.0,
+    "distanceThreshold": 5.5,
     "smallGenomeCoeff": 10,
     "percentageOffspringWithoutCrossover": 0.25,
     "probInterspeciesMating": 0.001,

@@ -12,25 +12,25 @@ def fitness(org):
     logic = [0, 0]
     net.reset_values()
     net.input(logic)
-    net.recursive_activation(net.num_inputs)
+    net.activate_net()
     error += math.fabs(net.output()[0])
 
     logic = [0, 1]
     net.reset_values()
     net.input(logic)
-    net.recursive_activation(net.num_inputs)
+    net.activate_net()
     error += math.fabs(1 - net.output()[0])
 
     logic = [1, 0]
     net.reset_values()
     net.input(logic)
-    net.recursive_activation(net.num_inputs)
+    net.activate_net()
     error += math.fabs(1 - net.output()[0])
 
     logic = [1, 1]
     net.reset_values()
     net.input(logic)
-    net.recursive_activation(net.num_inputs)
+    net.activate_net()
     error += math.fabs(net.output()[0])
 
     return math.pow(4 - error, 2)
@@ -53,5 +53,5 @@ for i in range(pop.params.generations):
                 print(org)
                 raise Exception('Error in organism')
     
-    print('Species = {:d}, champion_fitness: {:f}, avg_fitness: {:f}'.format(len(pop.current_species), pop.champion_fitness, avg_fitness / pop.params.population_max))
     pop.epoch()
+    print('Species = {:d}, champion_fitness: {:f}, avg_fitness: {:f}'.format(len(pop.current_species), pop.champion_fitness, avg_fitness / pop.params.population_max))

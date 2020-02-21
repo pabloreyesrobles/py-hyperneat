@@ -31,6 +31,7 @@ class NodeGene:
         self.gene_id = gene_id
         self.node_type = node_type
         self.function = function
+        self.layer = layer
 
     def randomize_function(self):
         self.funcion = ActivationFunction().get_random_function()

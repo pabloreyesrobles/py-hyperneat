@@ -91,28 +91,28 @@ class Population:
 		self.params.small_genome_coeff = config['smallGenomeCoeff']
 		self.params.no_crossover_offspring = config['percentageOffspringWithoutCrossover']
 
-		self.params.survival_selection = config['probInterspeciesMating']
-		self.params.allow_clones = config['sp_probAddingNewNode']
-		self.params.survival_threshold = config['sp_probAddingNewConnection']
-		self.params.elite_offspring_param = config['lp_probAddingNewNode']
+		self.params.survival_selection = config['survivalSelection']
+		self.params.allow_clones = config['allowClones']
+		self.params.survival_threshold = config['survivalThreshold']
+		self.params.elite_offspring_param = config['eliteOffspringParam']
 
 		# Interspecies probability of mate
-		self.prob.interspecies_mating = config['lp_probAddingNewConnection']
+		self.prob.interspecies_mating = config['probInterspeciesMating']
 
 		# Small population mutation probabilities
-		self.prob.sp_new_node = config['probMutateEnableConnection']
-		self.prob.sp_new_connection = config['probChangeWeight']
+		self.prob.sp_new_node = config['sp_probAddingNewNode']
+		self.prob.sp_new_connection = config['sp_probAddingNewConnection']
 
 		# Large population mutation probabilities
-		self.prob.lp_new_node = config['probChangeNodeFunction']
-		self.prob.lp_new_connection = config['survivalSelection']
+		self.prob.lp_new_node = config['lp_probAddingNewNode']
+		self.prob.lp_new_connection = config['lp_probAddingNewConnection']
 
 		# Probability to change enable status of connections
-		self.prob.mutate_connection_status = config['allowClones']
+		self.prob.mutate_connection_status = config['probMutateEnableConnection']
 
 		# Mutation probabilities
-		self.prob.mutation_weight = config['survivalThreshold']
-		self.prob.mutate_activation = config['eliteOffspringParam']
+		self.prob.mutation_weight = config['probChangeWeight']
+		self.prob.mutate_activation = config['probChangeNodeFunction']
 
 		self.configurated = True
 
@@ -216,8 +216,8 @@ class Population:
 		node_A = org_A.node_list[itr_A]
 		node_B = org_B.node_list[itr_B]
 		
-		# Output genome of the crossover operation
-		new_organism = Genome()
+		# Output genome of the crossover operation. #TODO: enhance genome copy
+		new_organism = Genome(num_layers = org_A.num_layers, phenotype = org_A.phenotype)
 
 		# Start iterate over genomes to explore the connection_list
 		while True:
@@ -339,14 +339,18 @@ class Population:
 			outgoing_connection_id = self.node_history[connection_replace.innovation].outgoing_connection_id
 
 			# Create new connections
-			incoming_connection = ConnectionGene(incoming_connection_id, connection_replace.incoming, new_node.gene_id, 1.0, True)
-			outgoing_connection = ConnectionGene(outgoing_connection_id, new_node.gene_id, connection_replace.outgoing, random.uniform(-1.0, 1.0), True)
+			incoming_connection = ConnectionGene(incoming_connection_id, connection_replace.incoming, new_node.gene_id, 1.0, True, connection_replace.source_layer, new_node.layer)
+			outgoing_connection = ConnectionGene(outgoing_connection_id, new_node.gene_id, connection_replace.outgoing, random.uniform(-1.0, 1.0), True, new_node.layer, connection_replace.target_layer)
 		else:
-			new_node = NodeGene(self.get_new_node_id(), NodeType.HIDDEN, ActivationFunction().get_random_function())
+			new_node_layer = math.floor(abs(connection_replace.target_layer - connection_replace.source_layer) / 2) + min(connection_replace.source_layer, connection_replace.target_layer)
+			if new_node_layer == connection_replace.target_layer or new_node_layer == connection_replace.source_layer:
+				return
+
+			new_node = NodeGene(self.get_new_node_id(), NodeType.HIDDEN, ActivationFunction().get_random_function(), new_node_layer)
 
 			# Create new connections and increment innovation
-			incoming_connection = ConnectionGene(self.get_new_innovation(), connection_replace.incoming, new_node.gene_id, 1.0, True)
-			outgoing_connection = ConnectionGene(self.get_new_innovation(), new_node.gene_id, connection_replace.outgoing, random.uniform(-1.0, 1.0), True)
+			incoming_connection = ConnectionGene(self.get_new_innovation(), connection_replace.incoming, new_node.gene_id, 1.0, True, connection_replace.source_layer, new_node_layer)
+			outgoing_connection = ConnectionGene(self.get_new_innovation(), new_node.gene_id, connection_replace.outgoing, random.uniform(-1.0, 1.0), True, new_node_layer, connection_replace.target_layer)
 
 			# Register new additions to node_history
 			self.node_history[connection_replace.innovation] = NodeHistoryStruct(incoming_connection.innovation, outgoing_connection.innovation, new_node)
@@ -360,6 +364,7 @@ class Population:
 	def mutate_add_connection(self, organism):
 		#TODO: add conditions to non-recursive and feed-forward
 		input_candidate = random.choice(organism.node_list)
+		source_layer_candidate = input_candidate.layer
 		
 		# Search for outgoing nodes
 		output_candidates = []
@@ -372,12 +377,13 @@ class Population:
 
 		# Select a node and verify that is not the same as input
 		output_candidate = random.choice(output_candidates)
+		target_layer_candidate = output_candidate.layer
 		if input_candidate == output_candidate:
 			return
 
 		# Check for loops in the net
-		if self.check_loops(organism, input_candidate.gene_id, output_candidate.gene_id) is True:
-			return
+		#if self.check_loops(organism, input_candidate.gene_id, output_candidate.gene_id) is True:
+		#	return
 		
 		# Make sure the connection doesn't exist already
 		node_pair = (input_candidate.gene_id, output_candidate.gene_id)
@@ -387,8 +393,8 @@ class Population:
 				connection_index = index
 				break
 
-		if connection_index != -1:			
-			new_connection = ConnectionGene(incoming=node_pair[0], outgoing=node_pair[1], enable=True)
+		if connection_index != -1:
+			new_connection = ConnectionGene(incoming=node_pair[0], outgoing=node_pair[1], enable=True, source_layer=source_layer_candidate, target_layer=target_layer_candidate)
 			
 			if node_pair in self.conn_innovation_history:
 				new_connection.innovation = self.conn_innovation_history[node_pair]

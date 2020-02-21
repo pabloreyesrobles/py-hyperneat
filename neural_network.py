@@ -1,6 +1,8 @@
+import numpy as np
 import math
 import json
 from activation_functions import ActivationFunction
+
 
 class Neuron:
 
@@ -14,6 +16,7 @@ class Neuron:
 
     def activate(self):
         self.output = self.function(self.input)
+        return self.output
 
 class Connection:
 
@@ -65,12 +68,17 @@ class NeuralNetwork:
         self.neurons[connection.target_id].incoming = True
 
     def activate_net(self):
-        for i in range(len(self.connections)):
-            self.connections[i].signal = self.neurons[self.connections[i].source_id].output * self.connections[i].weight
-        for i in range(len(self.connections)):
-            self.neurons[self.connections[i].target_id].input += self.connections[i].signal
-        for i in range(0, len(self.neurons)):
-            self.neurons[i].Activate()
+        for i in range(self.num_inputs):
+            self.neurons[i].activate()
+        for conn in self.connections:
+            self.neurons[conn.target_id].input += self.neurons[conn.source_id].output * conn.weight
+        for i in range(self.num_inputs, len(self.neurons)):
+            self.neurons[i].activate()
+            self.neurons[i].input = 0.0
+    
+    def activate_multistep(self, steps):
+        for i in range(steps):
+            self.activate_net()
 
     def recursive_activation(self, neuron_id):
         for conn in self.connections:
@@ -102,33 +110,51 @@ class NeuralNetwork:
             print('Neuron ' + str(i))
             print('input: ' + str(self.neurons[i].input) + ' - output: ' + str(self.neurons[i].output))
 
+#TODO: improve intialization
+class Layer:
+    def __init__(self, neurons):
+        self.neurons = neurons
+        self.signals = np.zeros(len(self.neurons))
+        self.outputs = np.zeros(len(self.neurons))
+    
+    def activate(self):
+        if len(self.neurons) != self.signals.size:
+            raise Exception('Neuron and input signal size mismatch')
+
+        for neuron, signal in zip(self.neurons, self.signals):
+            neuron.input = signal
+            neuron.activate()
+
+    def get_activations(self):
+        self.outputs = np.array([neuron.output for neuron in self.neurons])
+        return self.outputs
+
 # TODO: improve inheritance
 class LayeredNetwork(NeuralNetwork):
 
     def __init__(self, neurons, connections, num_inputs, num_outputs, layers):
-        super.__init__(neurons, connections, num_inputs, num_outputs)
+        super().__init__(neurons, connections, num_inputs, num_outputs)
 
-        self.layers = layers
-        self.connections_by_origin = [[] for i in range(len(self.layers))]
+        self.layers = [Layer(neurons) for neurons in layers]
+        self.layer_map = {}
 
         for conn in self.connections:
-            self.connections_by_origin[conn.source_layer].append[conn]
+            connection_map = (conn.source_layer, conn.target_layer)
+            if connection_map not in self.layer_map:
+                self.layer_map[connection_map] = np.zeros((len(self.layers[connection_map[0]].neurons), len(self.layers[connection_map[1]].neurons)))
+            self.layer_map[connection_map][conn.source_id][conn.target_id] = conn.weight
 
     def activate_net(self):
-        for i in range(len(self.layers)):
-            for neuron in self.layers[i]:
-                neuron.Activate()
-            
-            for connection in self.connections_by_origin[i]:
-                connection.signal = 
-
-        for i in range(len(self.connections)):
-            self.connections[i].signal = self.neurons[self.connections[i].source_id].output * self.connections[i].weight
-        for i in range(len(self.connections)):
-            self.neurons[self.connections[i].target_id].input += self.connections[i].signal
-        for i in range(0, len(self.neurons)):
-            self.neurons[i].Activate()
+        for key in self.layer_map:
+            self.layers[key[0]].activate()            
+            self.layers[key[1]].signals += np.matmul(self.layer_map[key].T, self.layers[key[0]].get_activations())
 
     def input(self, input_data):
-        for i in range(self.num_inputs):
-            self.neurons[i].input = input_data[i]
+        if len(input_data) != len(self.layers[0].signals):
+            raise Exception('Input data and input layer neurons dimensions mismatch')
+
+        self.layers[0].signals = np.array(input_data)
+
+    def output(self):
+        self.layers[-1].activate()
+        return self.layers[-1].get_activations()
