@@ -1,38 +1,36 @@
 from population import Population
 from neural_network import NeuralNetwork
 from genome import Genome
+from neat import Neat, TrainTask
 import math
 import sys
 
-def fitness(org):
+def fitness(input_data, net):
     error = 0.0
     outputs = []
 
-    net = org.build_layered_phenotype()
-
-    logic = [0, 0]
+    logic = input_data[0]
     net.reset_values()
     net.input(logic)
     net.activate_net()
     error += math.fabs(net.output()[0])
     outputs.append(net.output()[0])
 
-    logic = [0, 1]
+    logic = input_data[1]
     net.reset_values()
     net.input(logic)
     net.activate_net()
     error += math.fabs(1 - net.output()[0])
     outputs.append(net.output()[0])
 
-    logic = [1, 0]
+    logic = input_data[2]
     net.reset_values()
     net.input(logic)
     net.activate_net()
     error += math.fabs(1 - net.output()[0])
     outputs.append(net.output()[0])
 
-    logic = [1, 1]
-    net.reset_values()
+    logic = input_data[3]
     net.input(logic)
     net.activate_net()
     error += math.fabs(net.output()[0])
@@ -44,25 +42,17 @@ def fitness(org):
 params = open('testConfig.json', 'r')
 genome = open('testXor.json', 'r')
 
-pop = Population()
-pop.start_generation(genome, params)
+evolution = Neat(fitness_eval=fitness, train_task=TrainTask.PREDICTION)
+evolution.import_config(params, genome)
 
-for i in range(pop.params.generations):
-    avg_fitness = 0.0
-    best_epoch_fitness = 0.0
-    count = 0
-    for org in pop.organisms:
-        try:
-            org.fitness = fitness(org)
-            avg_fitness += org.fitness
-            count += 1
-            if org.fitness > best_epoch_fitness:
-                best_epoch_fitness = org.fitness
-        except:
-            print(org)
-            raise Exception('Error in organism')
-    
-    pop.epoch()
-    print('Species = {:d}, champion_fitness: {:f}, avg_fitness: {:f}, best_fitness: {:f}'.format(len(pop.species), pop.champion_fitness, avg_fitness / pop.params.population_max, best_epoch_fitness))
+xor_eval = [[0, 0], [0, 1], [1, 0], [1, 1]]
 
-pop.champion_genome.save_genome()
+for i in range(evolution.max_generation):
+
+    evolution.set_multi_input(xor_eval)
+    evolution.evaluate_population()    
+    evolution.epoch()
+
+    print('Species = {:d}, champion_fitness: {:f}, avg_fitness: {:f}, best_fitness: {:f}'.format(len(evolution.pop.species), evolution.pop.champion_fitness, evolution.avg_fitness / evolution.pop.params.population_max, evolution.best_epoch_fitness))
+
+evolution.pop.champion_genome.save_genome()
