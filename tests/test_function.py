@@ -1,6 +1,7 @@
 import math
 import sys
 import numpy as np
+import random
 
 z = [-1.5, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 6.0]
 z_exp = [math.exp(i) for i in z]
@@ -11,3 +12,5 @@ print(softmax)
 
 a = np.array(z).reshape((2, 4))
 print(a[0][2])
+
+print(random.uniform(0, 1))

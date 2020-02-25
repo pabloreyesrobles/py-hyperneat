@@ -10,6 +10,7 @@ class Species:
         self.avg_fitness = 0.0
         self.organisms = []
         self.birth = 0
+        self.extinct = False
 
     def sort_by_fitness(self):
         self.organisms.sort(key=lambda x: x.fitness, reverse=True)

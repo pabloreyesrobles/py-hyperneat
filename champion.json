@@ -1,0 +1,139 @@
+{
+    "phenotype": 1,
+    "num_layers": 15,
+    "GeneticEncoding": {
+        "nodes": [
+            {
+                "exist": "true",
+                "nodeID": 0,
+                "type": 0,
+                "row": 0,
+                "function": "SIGNED_SIGMOID"
+            },
+            {
+                "exist": "true",
+                "nodeID": 1,
+                "type": 0,
+                "row": 0,
+                "function": "SIGNED_SIGMOID"
+            },
+            {
+                "exist": "true",
+                "nodeID": 2,
+                "type": 2,
+                "row": 14,
+                "function": "SIGNED_SIGMOID"
+            },
+            {
+                "exist": "true",
+                "nodeID": 4,
+                "type": 1,
+                "row": 7,
+                "function": "TANH"
+            },
+            {
+                "exist": "true",
+                "nodeID": 5,
+                "type": 1,
+                "row": 10,
+                "function": "SIGNED_GAUSS"
+            },
+            {
+                "exist": "true",
+                "nodeID": 7,
+                "type": 1,
+                "row": 8,
+                "function": "SIGNED_GAUSS"
+            },
+            {
+                "exist": "true",
+                "nodeID": 3,
+                "type": 1,
+                "row": 7,
+                "function": "SIGNED_GAUSS"
+            }
+        ],
+        "connections": [
+            {
+                "exist": "true",
+                "innovation": 0,
+                "in": 0,
+                "out": 2,
+                "weight": 0.38139266433122576,
+                "enable": false
+            },
+            {
+                "exist": "true",
+                "innovation": 1,
+                "in": 1,
+                "out": 2,
+                "weight": -0.5096177577601706,
+                "enable": false
+            },
+            {
+                "exist": "true",
+                "innovation": 5,
+                "in": 1,
+                "out": 4,
+                "weight": -0.2914953779258673,
+                "enable": true
+            },
+            {
+                "exist": "true",
+                "innovation": 6,
+                "in": 4,
+                "out": 2,
+                "weight": 0.9636367167947597,
+                "enable": true
+            },
+            {
+                "exist": "true",
+                "innovation": 10,
+                "in": 4,
+                "out": 5,
+                "weight": -0.5954498197556648,
+                "enable": false
+            },
+            {
+                "exist": "true",
+                "innovation": 11,
+                "in": 5,
+                "out": 2,
+                "weight": 0.5922517545164272,
+                "enable": true
+            },
+            {
+                "exist": "true",
+                "innovation": 16,
+                "in": 4,
+                "out": 7,
+                "weight": 0.02535273910188618,
+                "enable": true
+            },
+            {
+                "exist": "true",
+                "innovation": 17,
+                "in": 7,
+                "out": 5,
+                "weight": -0.9714691317886501,
+                "enable": true
+            },
+            {
+                "exist": "true",
+                "innovation": 2,
+                "in": 0,
+                "out": 3,
+                "weight": -0.6194022600836062,
+                "enable": true
+            },
+            {
+                "exist": "true",
+                "innovation": 3,
+                "in": 3,
+                "out": 2,
+                "weight": -0.6668014464772913,
+                "enable": true
+            }
+        ]
+    }
+}

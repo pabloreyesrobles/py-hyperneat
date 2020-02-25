@@ -6,11 +6,11 @@ GAUSS_DESV = 0.1
 FREQ = 2 * math.pi
 PHASE = 0.0
 
-def unsignedSigmoid(x):
+def UnsignedSigmoid(x):
     return 1.0 / (1.0 + math.exp(SIGMOID_CONST * x))
 
 def SignedSigmoid(x):
-    return (unsignedSigmoid(x) - 0.5) * 2.0
+    return (UnsignedSigmoid(x) - 0.5) * 2.0
 
 def Tanh(x):
     return math.tanh(x)
@@ -69,15 +69,15 @@ class ActivationFunction:
 
     def __init__(self):
         self.functions = {}
-        self.functions['UNSIGNED_SIGMOID'] = unsignedSigmoid
         self.functions['SIGNED_SIGMOID'] = SignedSigmoid
+        self.functions['UNSIGNED_SIGMOID'] = UnsignedSigmoid
+        self.functions['UNSIGNED_GAUSS'] = UnsignedGauss
+        self.functions['SIGNED_GAUSS'] = SignedGauss
         self.functions['TANH'] = Tanh
         self.functions['UNSIGNED_SINE'] = UnsignedSine
         self.functions['SIGNED_SINE'] = SignedSine
         self.functions['UNSIGNED_COSINE'] = UnsignedCosine
         self.functions['SIGNED_COSINE'] = SignedCosine
-        self.functions['UNSIGNED_GAUSS'] = UnsignedGauss
-        self.functions['SIGNED_GAUSS'] = SignedGauss
         self.functions['UNSIGNED_STEP'] = UnsignedStep
         self.functions['SIGNED_STEP'] = SignedStep
         self.functions['RELU'] = Relu
@@ -87,6 +87,11 @@ class ActivationFunction:
     def get(self, function_name):
         return self.functions[function_name]
 
+    def get_function_name(self, function):
+        for function_name in self.functions:
+            if function == self.functions[function_name]:
+                return function_name
+
     def get_random_function(self):
         function_list = list(self.functions.values())
-        return random.choice(function_list)
+        return random.choice(function_list[1:5])

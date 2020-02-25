@@ -26,6 +26,8 @@ class Genome:
         self.phenotype = phenotype
         self.num_layers = num_layers
 
+        self.parent_species = -1
+
     def add_node(self, node_gene):
         for pos, val in enumerate(self.node_list):
             # Node already exist
@@ -72,6 +74,41 @@ class Genome:
             self.num_layers = data['num_layers']
 
         return True
+
+    def export_genome(self):
+        data = {}
+        data['phenotype'] = self.phenotype
+        data['num_layers'] = self.num_layers
+
+        data['GeneticEncoding'] = {}
+        data['GeneticEncoding']['nodes'] = []
+        data['GeneticEncoding']['connections'] = []
+
+        for node_gene in self.node_list:
+            data['GeneticEncoding']['nodes'].append({
+                'exist': 'true',
+                'nodeID': node_gene.gene_id,
+                'type': node_gene.node_type,
+                'row': node_gene.layer,
+                'function': ActivationFunction().get_function_name(node_gene.function)
+            })
+
+        for connection_gene in self.connection_list:
+            data['GeneticEncoding']['connections'].append({
+                'exist': 'true',
+                'innovation': connection_gene.innovation,
+                'in': connection_gene.incoming,
+                'out': connection_gene.outgoing,
+                'weight': connection_gene.weight,
+                'enable': connection_gene.enable
+            })
+
+        return data
+
+    def save_genome(self):
+        data = self.export_genome()
+        with open('champion.json', 'w') as outfile:
+            json.dump(data, outfile, indent=4)
 
     def build_phenotype(self):
         # Init some variables

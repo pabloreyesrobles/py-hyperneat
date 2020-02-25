@@ -1,13 +1,14 @@
 {
 	"phenotype": 1,
-	"num_layers": 20,
+	"num_layers": 15,
+	"weight_range": [-10.0, 10.0],
 	"GeneticEncoding":
 	{
 		"nodes":
 		[
 			{"exist": true, "nodeID": 0, "type": 0, "row": 0, "function": "SIGNED_SIGMOID"},
 			{"exist": true, "nodeID": 1, "type": 0, "row": 0, "function": "SIGNED_SIGMOID"},
-			{"exist": true, "nodeID": 2, "type": 2, "row": 19, "function": "UNSIGNED_SIGMOID"}
+			{"exist": true, "nodeID": 2, "type": 2, "row": 14, "function": "SIGNED_SIGMOID"}
 		],
 		"connections":
 		[
