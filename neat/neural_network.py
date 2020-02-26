@@ -1,7 +1,7 @@
 import numpy as np
 import math
 import json
-from activation_functions import ActivationFunction
+from neat.activation_functions import ActivationFunction
 
 
 class Neuron:

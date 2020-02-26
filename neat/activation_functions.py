@@ -7,7 +7,7 @@ FREQ = 2 * math.pi
 PHASE = 0.0
 
 def UnsignedSigmoid(x):
-    return 1.0 / (1.0 + math.exp(SIGMOID_CONST * x))
+    return 1.0 / (1.0 + math.exp(-SIGMOID_CONST * x))
 
 def SignedSigmoid(x):
     return (UnsignedSigmoid(x) - 0.5) * 2.0

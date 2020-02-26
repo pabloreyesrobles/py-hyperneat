@@ -1,4 +1,4 @@
-from activation_functions import ActivationFunction
+from neat.activation_functions import ActivationFunction
 
 import random
 

@@ -1,4 +1,4 @@
-from population import Population
+from py-hyperneat.population import Population
 
 params = open('testConfig.json', 'r')
 genome = open('Champion.json', 'r')

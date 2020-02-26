@@ -1,4 +1,4 @@
-from genome import Genome
+from neat.genome import Genome
 import copy
 
 class Species:

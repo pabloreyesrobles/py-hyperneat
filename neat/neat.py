@@ -1,9 +1,9 @@
-from species import Species
-from genome import Genome
-from genes import ConnectionGene, NodeGene, NodeType
-from activation_functions import ActivationFunction
-from neural_network import Neuron, Connection, NeuralNetwork
-from population import Population, NodeHistoryStruct
+from neat.species import Species
+from neat.genome import Genome
+from neat.genes import ConnectionGene, NodeGene, NodeType
+from neat.activation_functions import ActivationFunction
+from neat.neural_network import Neuron, Connection, NeuralNetwork
+from neat.population import Population, NodeHistoryStruct
 
 import json
 import copy

@@ -1,6 +1,6 @@
-from genes import ConnectionGene, NodeGene, NodeType
-from neural_network import Neuron, Connection, NeuralNetwork, LayeredNetwork
-from activation_functions import ActivationFunction
+from neat.genes import ConnectionGene, NodeGene, NodeType
+from neat.neural_network import Neuron, Connection, NeuralNetwork, LayeredNetwork
+from neat.activation_functions import ActivationFunction
 
 import json
 import random
