@@ -17,9 +17,8 @@ class TrainTask:
 	CLASSIFICATION = 1
 
 class Neat:
-
-	def __init__(self, fitness_eval=None, train_task=None):
-		
+	
+	def __init__(self, fitness_eval=None, train_task=None):		
 		self.pop = Population()
 
 		self.current_generation = 0
@@ -37,8 +36,7 @@ class Neat:
 		# Must be set True to operate
 		self.configurated = False
 
-	def import_config(self, config_file, genome_file):
-		
+	def import_config(self, config_file, genome_file):		
 		try:
 			config = json.load(config_file)
 		except ValueError:
@@ -55,16 +53,14 @@ class Neat:
 
 		self.configurated = True
 
-	def set_multi_input(self, data):
-		
+	def set_multi_input(self, data):		
 		if self.train_task == TrainTask.PREDICTION:
 			if len(data) <= 1:
 				raise Exception('Use set_single_input')
 
 			self.input_data = data
 
-	def evaluate_population(self):
-		
+	def evaluate_population(self):	
 		self.avg_fitness = 0.0
 		self.best_epoch_fitness = 0.0
 
@@ -81,7 +77,7 @@ class Neat:
 	# champion_species tracking
 	# stagnation respect to best historical fitness
 	def epoch(self):
-
+		self.pop.sort_organisms()
 		self.pop.adjust_speciate_threshold()
 		self.pop.compute_offspring()
 

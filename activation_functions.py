@@ -106,3 +106,7 @@ class ActivationFunction:
         self.functions.pop('LINEAR')
         self.functions.pop('ABS')
         self.functions.pop('RELU')
+
+    def use_only_sigmoid(self):
+        self.functions = {}
+        self.functions['SIGNED_SIGMOID'] = SignedSigmoid

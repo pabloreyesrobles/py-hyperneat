@@ -1,4 +1,5 @@
 from genome import Genome
+import copy
 
 class Species:
 
@@ -21,7 +22,7 @@ class Species:
 
     def update_champion(self):
         self.sort_by_fitness()
-        self.best_organism = self.organisms[0]
+        self.best_organism = copy.deepcopy(self.organisms[0])
         self.best_fitness = self.best_organism.fitness
 
     def __eq__(self, other): 

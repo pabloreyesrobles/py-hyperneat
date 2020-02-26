@@ -86,7 +86,6 @@ class Population:
 		self.configurated = False
 
 	def config_population(self, config):
-
 		self.params.population_max = config['populationMax']
 		self.params.generations = config['generations']
 		self.params.distance_coeff_1 = config['distanceCoeff1']
@@ -127,22 +126,18 @@ class Population:
 		self.configurated = True
 
 	def get_new_innovation(self):
-
 		self.global_innovation_count += 1
 		return self.global_innovation_count
 
 	def get_new_node_id(self):
-
 		self.global_node_count += 1
 		return self.global_node_count
 
 	def get_new_species_id(self):
-
 		self.global_species_count += 1
 		return self.global_species_count
 
 	def start_population(self, genome):
-
 		for node in genome.node_list:
 			if self.global_node_count < node.gene_id:
 				self.global_node_count = node.gene_id
@@ -162,7 +157,6 @@ class Population:
 		self.speciate()
 
 	def compatibility(self, org_A, org_B):
-
 		excess = 0
 		disjoint = 0
 		var_weight = 0
@@ -220,7 +214,6 @@ class Population:
 
 	# From Stanley code
 	def adjust_speciate_threshold(self):
-
 		re_speciate = False
 		
 		if len(self.species) < self.params.min_species:
@@ -257,7 +250,6 @@ class Population:
 
 		if re_speciate is True:
 			self.species = {}
-			self.sort_organisms()
 			self.speciate()
 
 	def crossover(self, org_A, org_B):
@@ -505,11 +497,10 @@ class Population:
 					son = copy.deepcopy(sp.best_organism)
 					elite_count += 1
 				else:
-					random_mother = self.get_random_organism(sp)
-
 					if random.uniform(0, 1) < self.params.no_crossover_offspring:
-						son = copy.deepcopy(random_mother)
+						son = copy.deepcopy(self.get_random_organism(sp))
 					else:
+						random_mother = self.get_random_organism(sp)
 						if len(self.species) > 1 and random.uniform(0, 1) < self.prob.interspecies_mating:
 							while True:
 								random_father = random.choice(list(self.organisms))
@@ -610,9 +601,9 @@ class Population:
 			sp.offspring = 0.0
 			sp.avg_fitness = 0.0
 
-			if sp.best_fitness >= self.champion_fitness:
-				self.champion_fitness = sp.best_fitness
-				self.champion_genome = sp.best_organism
+			if sp.best_organism.fitness >= self.champion_fitness:
+				self.champion_fitness = sp.best_organism.fitness
+				self.champion_genome = copy.deepcopy(sp.best_organism)
 
 			for org in sp.organisms:
 				org.shared_fitness = org.fitness / len(sp.organisms)
