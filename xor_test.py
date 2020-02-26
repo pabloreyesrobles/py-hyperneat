@@ -44,6 +44,8 @@ genome = open('testXor.json', 'r')
 
 evolution = Neat(fitness_eval=fitness, train_task=TrainTask.PREDICTION)
 evolution.import_config(params, genome)
+evolution.pop.activation_set.set_atemporal_set()
+evolution.pop.activation_set.unset_lin_group()
 
 xor_eval = [[0, 0], [0, 1], [1, 0], [1, 1]]
 
@@ -53,6 +55,6 @@ for i in range(evolution.max_generation):
     evolution.evaluate_population()    
     evolution.epoch()
 
-    print('Species = {:d}, champion_fitness: {:f}, avg_fitness: {:f}, best_fitness: {:f}'.format(len(evolution.pop.species), evolution.pop.champion_fitness, evolution.avg_fitness / evolution.pop.params.population_max, evolution.best_epoch_fitness))
+    print('Generation #{:d}: species = {:d}, champion_fitness = {:f}, avg_generation_fitness = {:f}, best_generation_fitness = {:f}'.format(evolution.current_generation, len(evolution.pop.species), evolution.pop.champion_fitness, evolution.avg_fitness / evolution.pop.params.population_max, evolution.best_epoch_fitness))
 
 evolution.pop.champion_genome.save_genome()

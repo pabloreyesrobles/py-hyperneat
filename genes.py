@@ -20,7 +20,7 @@ class ConnectionGene:
         self.enable = enable
 
     def randomize_weight(self):
-        self.weight = random.uniform(-1.0, 1.0)
+        self.weight = random.uniform(-2.0, 2.0)
 
     def __eq__(self, connection_gene):
         return self.innovation == connection_gene.innovation
@@ -33,8 +33,11 @@ class NodeGene:
         self.function = function
         self.layer = layer
 
-    def randomize_function(self):
-        self.funcion = ActivationFunction().get_random_function()
+    def randomize_function(self, activation_set=None):
+        if activation_set == None:
+            self.function = ActivationFunction().get_random_function()
+        else:
+            self.function = activation_set.get_random_function()
 
     def __eq__(self, node_gene):
         return self.gene_id == node_gene.gene_id

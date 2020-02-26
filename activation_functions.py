@@ -94,4 +94,15 @@ class ActivationFunction:
 
     def get_random_function(self):
         function_list = list(self.functions.values())
-        return random.choice(function_list[1:5])
+        return random.choice(function_list)
+
+    def set_atemporal_set(self):
+        self.functions.pop('SIGNED_SINE')
+        self.functions.pop('UNSIGNED_SINE')
+        self.functions.pop('SIGNED_COSINE')
+        self.functions.pop('UNSIGNED_COSINE')
+
+    def unset_lin_group(self):
+        self.functions.pop('LINEAR')
+        self.functions.pop('ABS')
+        self.functions.pop('RELU')

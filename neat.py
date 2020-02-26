@@ -82,8 +82,8 @@ class Neat:
 	# stagnation respect to best historical fitness
 	def epoch(self):
 
-		self.pop.compute_offspring()
 		self.pop.adjust_speciate_threshold()
+		self.pop.compute_offspring()
 
 		self.pop.reproduce()
 		self.pop.speciate()

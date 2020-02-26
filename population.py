@@ -27,6 +27,7 @@ class PopulationParams:
 	elite_offspring_param: float = 0.0
 	min_species: int = 0
 	max_species: int = 0
+	stagnation_purge: bool = False
 
 @dataclass
 class PopulationProb:
@@ -79,6 +80,8 @@ class Population:
 
 		self.distance_threshold_var = 0.0
 		self.speciation_adjust_start = False
+
+		self.activation_set = ActivationFunction()
 		# Must be set True to operate
 		self.configurated = False
 
@@ -100,6 +103,8 @@ class Population:
 
 		self.params.min_species = config['adjustMinSpecies']
 		self.params.max_species = config['adjustMaxSpecies']
+
+		self.params.stagnation_purge = config['stagnationPurge']
 
 		# Interspecies probability of mate
 		self.prob.interspecies_mating = config['probInterspeciesMating']
@@ -199,18 +204,24 @@ class Population:
 		
 		if larger_genome > self.params.small_genome_coeff:
 			divisor = larger_genome
-			small_genomes_buff = 1.0
+			small_genomes_buff = 1.0 / larger_genome
 		else:
-			divisor = 1.0
+			divisor = 1
 			if self.params.distance_coeff_3 < 1.0:
 				small_genomes_buff = 1.0 / self.params.distance_coeff_3
 			else:
 				small_genomes_buff = 1.0
 		
-		return self.params.distance_coeff_1 * excess / divisor + self.params.distance_coeff_2 * disjoint / divisor + self.params.distance_coeff_3 * var_weight * small_genomes_buff
+		compatibility = self.params.distance_coeff_1 * excess / divisor + self.params.distance_coeff_2 * disjoint / divisor + self.params.distance_coeff_3 * var_weight * small_genomes_buff
+		return compatibility
+
+	def sort_organisms(self):
+		self.organisms.sort(key=lambda x: x.fitness, reverse=True)
 
 	# From Stanley code
 	def adjust_speciate_threshold(self):
+
+		re_speciate = False
 		
 		if len(self.species) < self.params.min_species:
 			if self.speciation_adjust_start == False:
@@ -225,6 +236,8 @@ class Population:
 			self.params.distance_threshold += self.distance_threshold_var
 			self.params.distance_threshold = max(0.1, self.params.distance_threshold)
 
+			re_speciate = True
+
 		elif len(self.species) > self.params.max_species:
 			if self.speciation_adjust_start == False:
 				self.speciation_adjust_start = True
@@ -236,9 +249,16 @@ class Population:
 					self.distance_threshold_var *= 1.05
 
 			self.params.distance_threshold += self.distance_threshold_var
+
+			re_speciate = True
 		
 		else:
 			self.speciation_adjust_start = False
+
+		if re_speciate is True:
+			self.species = {}
+			self.sort_organisms()
+			self.speciate()
 
 	def crossover(self, org_A, org_B):
 
@@ -341,7 +361,7 @@ class Population:
 		# Check if innovation already mutated
 		if connection_replace.innovation in self.node_history:
 			new_node = self.node_history[connection_replace.innovation].node_connected
-			new_node.randomize_function()
+			new_node.randomize_function(self.activation_set)
 			
 			# Load incoming and outgoing innovation from the node_history dict
 			incoming_connection_id = self.node_history[connection_replace.innovation].incoming_connection_id
@@ -356,7 +376,7 @@ class Population:
 			if connection_replace.target_layer < new_node_layer or new_node_layer == connection_replace.source_layer or new_node_layer == connection_replace.target_layer:
 				return
 
-			new_node = NodeGene(self.get_new_node_id(), NodeType.HIDDEN, ActivationFunction().get_random_function(), new_node_layer)
+			new_node = NodeGene(self.get_new_node_id(), NodeType.HIDDEN, self.activation_set.get_random_function(), new_node_layer)
 
 			# Create new connections and increment innovation
 			incoming_connection = ConnectionGene(self.get_new_innovation(), connection_replace.incoming, new_node.gene_id, 1.0, True, connection_replace.source_layer, new_node_layer)
@@ -434,14 +454,21 @@ class Population:
 
 		for node in organism.node_list:
 			if random.uniform(0, 1) < self.prob.mutate_activation and node.node_type != NodeType.INPUT:
-				node.randomize_function()	
+				node.randomize_function(self.activation_set)	
 
 	def mutation(self, org): 
 
-		probabilities_set = {self.prob.lp_new_node: self.mutate_add_node(org),
-							 self.prob.lp_new_connection: self.mutate_add_connection(org),
-							 self.prob.mutate_activation: self.mutate_node_functions(org),
-							 self.prob.mutation_weight: self.mutate_connection_weight(org)}
+		org.recompute_complexity()
+		if org.complexity > self.params.small_genome_coeff:
+			probabilities_set = {self.prob.lp_new_node: self.mutate_add_node(org),
+								self.prob.lp_new_connection: self.mutate_add_connection(org),
+								self.prob.mutate_activation: self.mutate_node_functions(org),
+								self.prob.mutation_weight: self.mutate_connection_weight(org)}
+		else:
+			probabilities_set = {self.prob.sp_new_node: self.mutate_add_node(org),
+								self.prob.sp_new_connection: self.mutate_add_connection(org),
+								self.prob.mutate_activation: self.mutate_node_functions(org),
+								self.prob.mutation_weight: self.mutate_connection_weight(org)}
 
 		probabilities_sum = np.fromiter(probabilities_set.keys(), dtype=float).sum()
 		probabilities_accum = 0.0
@@ -475,7 +502,7 @@ class Population:
 
 			while offspring_amount > 0:
 				if elite_count < elite_offspring:
-					son = copy.deepcopy(sp.champion_genome)
+					son = copy.deepcopy(sp.best_organism)
 					elite_count += 1
 				else:
 					random_mother = self.get_random_organism(sp)
@@ -508,10 +535,9 @@ class Population:
 		while len(self.offspring_organisms) < self.params.population_max:
 			random_species = random.choice(list(self.species.values()))
 
-			random_org = copy.deepcopy(random_species.champion_genome)
+			random_org = copy.deepcopy(random_species.best_organism)
 			random_org.randomize_weights()
 
-			random_species.organisms.append(random_org)
 			self.offspring_organisms.append(random_org)
 		
 		self.organisms = self.offspring_organisms
@@ -529,20 +555,22 @@ class Population:
 				new_species.birth = self.get_new_species_id()
 				new_species.organisms.append(org)
 				
-				new_species.champion_genome = org
+				new_species.best_organism = org
 				org.parent_species = new_species.birth # TODO: a method to assign and post-update new count
 
 				self.species[new_species.birth] = new_species
 			else:
 				if org.parent_species != -1 and org.parent_species in self.species:
-					if self.compatibility(org, self.species[org.parent_species].champion_genome) < self.params.distance_threshold:
+					compatibility = self.compatibility(org, self.species[org.parent_species].best_organism)
+					if compatibility < self.params.distance_threshold:
 						self.species[org.parent_species].organisms.append(org)
 						continue
 
 				for sp in self.species.values():
-					if self.compatibility(org, sp.champion_genome) < self.params.distance_threshold:
+					compatibility = self.compatibility(org, sp.best_organism)
+					if compatibility < self.params.distance_threshold:
 						compatible_species = True
-						org.parent_species = sp.champion_genome.parent_species
+						org.parent_species = sp.best_organism.parent_species
 						sp.organisms.append(org)
 						break
 				
@@ -551,7 +579,7 @@ class Population:
 					new_species.birth = self.get_new_species_id()
 					new_species.organisms.append(org)
 					
-					new_species.champion_genome = org
+					new_species.best_organism = org
 					org.parent_species = new_species.birth # TODO: a method to assign and post-update new count
 
 					self.species[new_species.birth] = new_species
@@ -576,9 +604,6 @@ class Population:
 		pop_avg_shared_fitness = 0.0
 
 		for sp in self.species.values():
-			if sp.extinct == True:
-				continue
-
 			sp.update_champion()
 
 			sp.age += 1
@@ -587,7 +612,7 @@ class Population:
 
 			if sp.best_fitness >= self.champion_fitness:
 				self.champion_fitness = sp.best_fitness
-				self.champion_genome = sp.best_genome
+				self.champion_genome = sp.best_organism
 
 			for org in sp.organisms:
 				org.shared_fitness = org.fitness / len(sp.organisms)

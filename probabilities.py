@@ -1,5 +1,6 @@
 import random
 import numpy as np
+import copy
 
 class TestObj:
     
@@ -17,13 +18,13 @@ print(obj_arr_2[0].a)
 
 obj_arr[0].a = random.randint(5, 10)
 
-print(obj_arr[0].a)
-print(obj_arr_2[0].a)
+a = {3: [TestObj(), TestObj()], 5: [TestObj(), TestObj()]}
+b = copy.deepcopy(a)
 
-def funcA():
-    return 10
+print(a)
+print(b)
 
-def funcB():
-    return 5
+a.pop(3)
 
-print(funcA == funcA)
+print(a)
+print(b)

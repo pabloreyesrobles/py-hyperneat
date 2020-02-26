@@ -16,6 +16,7 @@ class Genome:
     def __init__(self, num_layers=0, phenotype=Phenotype.NONE):
         self.node_list = []
         self.connection_list = []
+        self.complexity = 0
 
         self.num_inputs = 0
         self.num_outputs = 0
@@ -29,10 +30,10 @@ class Genome:
         self.parent_species = -1
 
     def add_node(self, node_gene):
-        for pos, val in enumerate(self.node_list):
+        for node in self.node_list:
             # Node already exist
-            if val.gene_id == node_gene.gene_id:
-                self.node_list[pos].randomize_function()
+            if node.gene_id == node_gene.gene_id:
+                #self.node_list[pos].randomize_function()
                 return 1
 
         if node_gene.node_type == NodeType.INPUT:
@@ -40,6 +41,7 @@ class Genome:
         elif node_gene.node_type == NodeType.OUTPUT:
             self.num_outputs += 1
 
+        self.complexity += 1
         self.node_list.append(node_gene)
         return 0
 
@@ -51,6 +53,9 @@ class Genome:
         
         self.connection_list.append(connection_gene)
         return 0
+    
+    def recompute_complexity(self):
+        self.complexity = len(self.node_list)
             
     def import_genome(self, file):
         try:
