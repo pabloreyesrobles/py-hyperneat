@@ -28,3 +28,5 @@ a.pop(3)
 
 print(a)
 print(b)
+
+print(np.linspace(0, 99, 100))

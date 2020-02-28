@@ -19,8 +19,8 @@ class ConnectionGene:
         self.weight = weight
         self.enable = enable
 
-    def randomize_weight(self):
-        self.weight = random.uniform(-2.0, 2.0)
+    def randomize_weight(self, min_val=-1.0, max_val=1.0):
+        self.weight = random.uniform(min_val, max_val)
 
     def __eq__(self, connection_gene):
         return self.innovation == connection_gene.innovation

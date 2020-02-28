@@ -13,7 +13,7 @@ class Phenotype:
 
 class Genome:
 
-    def __init__(self, num_layers=0, phenotype=Phenotype.NONE):
+    def __init__(self, num_layers=0, phenotype=Phenotype.NONE, weights_range=(-1.0, 1.0)):
         self.node_list = []
         self.connection_list = []
         self.complexity = 0
@@ -28,6 +28,7 @@ class Genome:
         self.num_layers = num_layers
 
         self.parent_species = -1
+        self.weights_range = weights_range
 
     def add_node(self, node_gene):
         for node in self.node_list:
@@ -56,6 +57,20 @@ class Genome:
     
     def recompute_complexity(self):
         self.complexity = len(self.node_list)
+
+    def create_genome_from_genes(self, nodes, connections, phenotype=Phenotype.NONE, num_layers=-1):
+        for node_gene in nodes:
+            self.add_node(node_gene)
+
+        for connection_gene in connections:
+            self.add_connection(connection_gene)
+
+        #TODO: fix phenotype construction
+        if num_layers == -1:
+            raise Exception('Number of layers missing')
+
+        self.phenotype = phenotype
+        self.num_layers = num_layers
             
     def import_genome(self, file):
         try:
@@ -149,7 +164,7 @@ class Genome:
 
     def randomize_weights(self):
         for conn in self.connection_list:
-            conn.randomize_weight()
+            conn.randomize_weight(self.weights_range[0], self.weights_range[1])
     
     def randomize_functions(self):
         for node in self.node_list:

@@ -138,13 +138,14 @@ class Population:
 		return self.global_species_count
 
 	def start_population(self, genome):
+		self.seed_genome = copy.deepcopy(genome)
+
 		for node in genome.node_list:
 			if self.global_node_count < node.gene_id:
 				self.global_node_count = node.gene_id
 
 		for connection in genome.connection_list:
 			self.conn_innovation_history[(connection.incoming, connection.outgoing)] = connection.innovation
-
 			if self.global_innovation_count < connection.innovation:
 				self.global_innovation_count = connection.innovation
 
@@ -154,6 +155,42 @@ class Population:
 			org.randomize_weights()
 
 		self.champion_fitness = 0.0
+		self.speciate()
+
+	def restart_population(self):
+		self.current_generation = 0
+		self.champion_fitness = 0.0
+		self.champion_genome = None
+		self.best_historical_fitness = 0.0
+
+		self.global_innovation_count = 0
+		self.global_node_count = 0
+		self.global_species_count = -1
+
+		self.organisms = []
+		self.offspring_organisms = []
+		self.species = {}
+
+		self.conn_innovation_history = {}
+		self.node_history = {}
+
+		self.distance_threshold_var = 0.0
+		self.speciation_adjust_start = False
+
+		for node in self.seed_genome.node_list:
+			if self.global_node_count < node.gene_id:
+				self.global_node_count = node.gene_id
+
+		for connection in self.seed_genome.connection_list:
+			self.conn_innovation_history[(connection.incoming, connection.outgoing)] = connection.innovation
+			if self.global_innovation_count < connection.innovation:
+				self.global_innovation_count = connection.innovation
+
+		self.organisms = [copy.deepcopy(self.seed_genome) for i in range(self.params.population_max)]
+
+		for org in self.organisms:
+			org.randomize_weights()
+
 		self.speciate()
 
 	def compatibility(self, org_A, org_B):
@@ -253,7 +290,6 @@ class Population:
 			self.speciate()
 
 	def crossover(self, org_A, org_B):
-
 		# Iterator used to navigate through connection_list and node_list independently for each organism. TODO: use iter()
 		itr_A = 0
 		itr_B = 0
@@ -340,7 +376,6 @@ class Population:
 	
 
 	def mutate_add_node(self, organism):
-
 		if len(organism.connection_list) == 0:
 			return
 		

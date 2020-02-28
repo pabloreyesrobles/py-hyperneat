@@ -18,11 +18,11 @@ class TrainTask:
 
 class Neat:
 	
-	def __init__(self, fitness_eval=None, train_task=None):		
+	def __init__(self, fitness_eval=None, train_task=None, max_generation=0):		
 		self.pop = Population()
 
 		self.current_generation = 0
-		self.max_generation = 0
+		self.max_generation = max_generation
 		self.best_historical_fitness = 0.0
 		
 		self.fitness_eval = fitness_eval
@@ -35,6 +35,9 @@ class Neat:
 		self.best_epoch_fitness = 0.0
 		# Must be set True to operate
 		self.configurated = False
+
+		self.historical_avg_fitness = []
+		self.historical_best_fitness = []
 
 	def import_config(self, config_file, genome_file):		
 		try:
@@ -68,9 +71,11 @@ class Neat:
 			net = org.build_layered_phenotype()
 
 			org.fitness = self.fitness_eval(self.input_data, net)
-			self.avg_fitness += org.fitness
+			self.avg_fitness += org.fitness 
 			if org.fitness > self.best_epoch_fitness:
 				self.best_epoch_fitness = org.fitness
+
+		self.avg_fitness /= self.pop.params.population_max
 
 	# TODO:
 	# Best_fitness, historical_fitness, age mechanism needed
@@ -78,6 +83,9 @@ class Neat:
 	# stagnation respect to best historical fitness
 	def epoch(self):
 		self.pop.sort_organisms()
+		self.historical_avg_fitness.append(self.avg_fitness)
+		self.historical_best_fitness.append(self.best_epoch_fitness)
+
 		self.pop.adjust_speciate_threshold()
 		self.pop.compute_offspring()
 
@@ -86,7 +94,17 @@ class Neat:
 
 		self.pop.remove_empty_species()
 		
+		print('Generation #{:d}: species = {:d}, champion_fitness = {:f}, avg_generation_fitness = {:f}'.format(self.current_generation, len(self.pop.species), self.pop.champion_fitness, self.avg_fitness))
 		self.current_generation += 1
 
+	def run(self):
+		while self.current_generation < self.max_generation:
+			self.evaluate_population()    
+			self.epoch()
 
+	def run_multiple_trainings(self, num_trainings):
+		while num_trainings > 0:
+			self.run()
+			self.pop.restart_population()
+			num_trainings -= 1
 		
