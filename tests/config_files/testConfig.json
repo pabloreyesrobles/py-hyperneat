@@ -1,6 +1,6 @@
 {
-    "populationMax": 100,
-    "generations": 100,
+    "populationMax": 50,
+    "generations": 20,
     "distanceCoeff1": 0.6,
     "distanceCoeff2": 0.6,
     "distanceCoeff3": 0.06,

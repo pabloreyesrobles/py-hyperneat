@@ -7,7 +7,7 @@ setup(
     author='Pablo Reyes Robles',
     author_email='pabloreyes500@gmail.com',
     description='An HyperNEAT implementation for Python.',
-    url='https://gitlab.com/pablo_rr/py-hyperneat',
+    url='https://github.com/pabloreyesrobles/py-hyperneat',
     packages=['neat'],
     classifiers=[
         'Programming Language :: Python :: 3',

@@ -160,7 +160,6 @@ class Population:
 	def restart_population(self):
 		self.current_generation = 0
 		self.champion_fitness = 0.0
-		self.champion_genome = None
 		self.best_historical_fitness = 0.0
 
 		self.global_innovation_count = 0

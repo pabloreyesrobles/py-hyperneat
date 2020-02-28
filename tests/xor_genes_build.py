@@ -70,8 +70,8 @@ genome = Genome(weights_range)
 # Assemble genome from nodes and connections info. Need to specify the type of phenotype to construct and number of layers
 genome.create_genome_from_genes(nodes, connections, Phenotype.LAYERED_NETWORK, num_layers)
 
-# Create an instance of Neat algorithm, 100 generations
-num_generations = 100
+# Create an instance of Neat algorithm, 50 generations
+num_generations = 50
 
 evolution = Neat(fitness_eval=fitness, train_task=TrainTask.PREDICTION, max_generation=num_generations)
 
@@ -79,7 +79,7 @@ evolution = Neat(fitness_eval=fitness, train_task=TrainTask.PREDICTION, max_gene
 pop = Population()
 
 # Set hyperparameters of evolution
-pop.params.population_max = 100
+pop.params.population_max = 50
 pop.params.distance_coeff_1 = 0.6
 pop.params.distance_coeff_2 = 0.6
 pop.params.distance_coeff_3 = 0.06
@@ -125,7 +125,7 @@ xor_eval = [[0, 0], [0, 1], [1, 0], [1, 1]]
 
 # Run training
 evolution.set_multi_input(xor_eval)
-evolution.run()
+avg, best = evolution.run_multiple_trainings(3)
 
 #for i in range(evolution.max_generation):
 #    evolution.set_multi_input(xor_eval)

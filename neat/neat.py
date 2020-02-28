@@ -81,7 +81,7 @@ class Neat:
 	# Best_fitness, historical_fitness, age mechanism needed
 	# champion_species tracking
 	# stagnation respect to best historical fitness
-	def epoch(self):
+	def epoch(self, print_stats=False):
 		self.pop.sort_organisms()
 		self.historical_avg_fitness.append(self.avg_fitness)
 		self.historical_best_fitness.append(self.best_epoch_fitness)
@@ -94,7 +94,9 @@ class Neat:
 
 		self.pop.remove_empty_species()
 		
-		print('Generation #{:d}: species = {:d}, champion_fitness = {:f}, avg_generation_fitness = {:f}'.format(self.current_generation, len(self.pop.species), self.pop.champion_fitness, self.avg_fitness))
+		if print_stats == True:
+			print('Generation #{:d}: species = {:d}, champion_fitness = {:f}, avg_generation_fitness = {:f}'.format(self.current_generation, len(self.pop.species), self.pop.champion_fitness, self.avg_fitness))
+
 		self.current_generation += 1
 
 	def run(self):
@@ -102,9 +104,28 @@ class Neat:
 			self.evaluate_population()    
 			self.epoch()
 
+		return self.historical_avg_fitness, self.historical_best_fitness
+
 	def run_multiple_trainings(self, num_trainings):
-		while num_trainings > 0:
+		multiple_hist_avg_fitness = np.zeros(self.max_generation)
+		multiple_hist_best_fitness = np.zeros(self.max_generation)
+
+		current_training = 0
+
+		while current_training < num_trainings:
 			self.run()
+			print('Iteration #{:d}: species = {:d}, champion_fitness = {:f}, avg_generation_fitness = {:f}'.format(current_training, len(self.pop.species), self.pop.champion_fitness, self.avg_fitness))
+
+			multiple_hist_avg_fitness += np.array(self.historical_avg_fitness)
+			multiple_hist_best_fitness += np.array(self.historical_best_fitness)
+
 			self.pop.restart_population()
-			num_trainings -= 1
+
+			self.historical_avg_fitness = []
+			self.historical_best_fitness = []
+			self.current_generation = 0
+
+			current_training += 1
+
+		return multiple_hist_avg_fitness / num_trainings, multiple_hist_best_fitness / num_trainings
 		
