@@ -9,6 +9,8 @@ class Species:
         self.birth = 0
         self.extinct = False
 
+        self.last_improvement_age = 0
+
         self.avg_fitness = 0.0
         self.best_fitness = 0.0
         
@@ -23,6 +25,10 @@ class Species:
     def update_champion(self):
         self.sort_by_fitness()
         self.best_organism = copy.deepcopy(self.organisms[0])
+
+        if self.best_organism.fitness > self.best_fitness:
+            self.last_improvement_age = self.age
+
         self.best_fitness = self.best_organism.fitness
 
     def __eq__(self, other): 

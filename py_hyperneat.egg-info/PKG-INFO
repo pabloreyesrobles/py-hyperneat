@@ -1,0 +1,15 @@
+Metadata-Version: 1.2
+Name: py-hyperneat
+Version: 0.0.1
+Summary: An HyperNEAT implementation for Python.
+Home-page: https://github.com/pabloreyesrobles/py-hyperneat
+Author: Pablo Reyes Robles
+Author-email: pabloreyes500@gmail.com
+License: UNKNOWN
+Download-URL: https://github.com/pabloreyesrobles/py-hyperneat/archive/0.0.1.tar.gz
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6

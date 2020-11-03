@@ -1,0 +1,46 @@
+{
+	"n_AdditionalCPPNInputs": 1,
+	"AdditionalCPPNInputs":
+	[
+		"EUCLIDIANDISTANCE"
+	],
+	"connectionThreshold": 0.4,
+	"maxConnectionWeight": 4.0,
+	"Substrate":
+	{
+		"coordenateType": 2,
+		"nodeFunction" : "SIGNED_SIGMOID",
+		"Layers":
+		[
+			{
+				"n_nodes": 2,
+				"nodesType": 0,
+				"nodesInfo":
+				[
+					[ 0, 0, -0.5, -1.0 ],
+					[ 0, 1, 0.5, -1.0 ]
+				]
+			},
+			{
+				"n_nodes": 5,
+				"nodesType": 1,
+				"nodesInfo":
+				[
+					[ 1, -1, -0.75, 0.0 ],
+					[ 1, -1, -0.25, 0.0 ],
+					[ 1, -1, 0.0, 0.0 ],
+					[ 1, -1, 0.25, 0.0 ],
+					[ 1, -1, 0.75, 0.0 ]
+				]
+			},
+			{
+				"n_nodes": 1,
+				"nodesType": 2,
+				"nodesInfo":
+				[
+					[ 2, 0, 0.0, 1.0 ]
+				]
+			}
+		]
+	}	
+}

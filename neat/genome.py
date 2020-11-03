@@ -13,7 +13,7 @@ class Phenotype:
 
 class Genome:
 
-    def __init__(self, num_layers=0, phenotype=Phenotype.NONE, weights_range=(-1.0, 1.0)):
+    def __init__(self, num_layers=0, phenotype=Phenotype.NONE, weights_range=[-1.0, 1.0]):
         self.node_list = []
         self.connection_list = []
         self.complexity = 0
@@ -50,6 +50,7 @@ class Genome:
         for pos, val in enumerate(self.connection_list):
             if val.innovation == connection_gene.innovation:
                 self.connection_list[pos] = connection_gene
+                self.connection_list[pos].mutated = False
                 return 1
         
         self.connection_list.append(connection_gene)
@@ -92,6 +93,9 @@ class Genome:
         self.phenotype = data['phenotype']
         if self.phenotype == Phenotype.LAYERED_NETWORK:
             self.num_layers = data['num_layers']
+
+        if 'weight_range' in data:
+            self.weights_range = data['weight_range']
 
         return True
 

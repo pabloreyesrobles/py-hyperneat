@@ -1,0 +1,378 @@
+{
+    "phenotype": 1,
+    "num_layers": 15,
+    "GeneticEncoding": {
+        "nodes": [
+            {
+                "exist": "true",
+                "nodeID": 0,
+                "type": 0,
+                "row": 0,
+                "function": "SIGNED_SIGMOID"
+            },
+            {
+                "exist": "true",
+                "nodeID": 1,
+                "type": 0,
+                "row": 0,
+                "function": "SIGNED_SIGMOID"
+            },
+            {
+                "exist": "true",
+                "nodeID": 2,
+                "type": 2,
+                "row": 14,
+                "function": "SIGNED_SIGMOID"
+            },
+            {
+                "exist": "true",
+                "nodeID": 3,
+                "type": 1,
+                "row": 7,
+                "function": "TANH"
+            },
+            {
+                "exist": "true",
+                "nodeID": 6,
+                "type": 1,
+                "row": 10,
+                "function": "TANH"
+            },
+            {
+                "exist": "true",
+                "nodeID": 7,
+                "type": 1,
+                "row": 12,
+                "function": "TANH"
+            },
+            {
+                "exist": "true",
+                "nodeID": 5,
+                "type": 1,
+                "row": 3,
+                "function": "TANH"
+            },
+            {
+                "exist": "true",
+                "nodeID": 15,
+                "type": 1,
+                "row": 5,
+                "function": "TANH"
+            },
+            {
+                "exist": "true",
+                "nodeID": 4,
+                "type": 1,
+                "row": 7,
+                "function": "TANH"
+            },
+            {
+                "exist": "true",
+                "nodeID": 13,
+                "type": 1,
+                "row": 13,
+                "function": "TANH"
+            },
+            {
+                "exist": "true",
+                "nodeID": 10,
+                "type": 1,
+                "row": 13,
+                "function": "TANH"
+            },
+            {
+                "exist": "true",
+                "nodeID": 14,
+                "type": 1,
+                "row": 10,
+                "function": "TANH"
+            },
+            {
+                "exist": "true",
+                "nodeID": 8,
+                "type": 1,
+                "row": 8,
+                "function": "TANH"
+            },
+            {
+                "exist": "true",
+                "nodeID": 17,
+                "type": 1,
+                "row": 4,
+                "function": "TANH"
+            },
+            {
+                "exist": "true",
+                "nodeID": 19,
+                "type": 1,
+                "row": 3,
+                "function": "TANH"
+            },
+            {
+                "exist": "true",
+                "nodeID": 24,
+                "type": 1,
+                "row": 5,
+                "function": "TANH"
+            }
+        ],
+        "connections": [
+            {
+                "exist": "true",
+                "innovation": 0,
+                "in": 0,
+                "out": 2,
+                "weight": 0.9913285668412124,
+                "enable": false
+            },
+            {
+                "exist": "true",
+                "innovation": 1,
+                "in": 1,
+                "out": 2,
+                "weight": 0.35963186161343463,
+                "enable": false
+            },
+            {
+                "exist": "true",
+                "innovation": 2,
+                "in": 1,
+                "out": 3,
+                "weight": 1.0,
+                "enable": true
+            },
+            {
+                "exist": "true",
+                "innovation": 3,
+                "in": 3,
+                "out": 2,
+                "weight": -0.15702709376138135,
+                "enable": true
+            },
+            {
+                "exist": "true",
+                "innovation": 13,
+                "in": 3,
+                "out": 6,
+                "weight": -0.4618104831141403,
+                "enable": true
+            },
+            {
+                "exist": "true",
+                "innovation": 14,
+                "in": 6,
+                "out": 2,
+                "weight": 0.5703518563063581,
+                "enable": false
+            },
+            {
+                "exist": "true",
+                "innovation": 7,
+                "in": 3,
+                "out": 2,
+                "weight": 0.7905767934539145,
+                "enable": true
+            },
+            {
+                "exist": "true",
+                "innovation": 16,
+                "in": 6,
+                "out": 7,
+                "weight": -0.9696581624924885,
+                "enable": true
+            },
+            {
+                "exist": "true",
+                "innovation": 17,
+                "in": 7,
+                "out": 2,
+                "weight": 0.0024565063013735067,
+                "enable": true
+            },
+            {
+                "exist": "true",
+                "innovation": 23,
+                "in": 7,
+                "out": 2,
+                "weight": 0.5156368702777625,
+                "enable": true
+            },
+            {
+                "exist": "true",
+                "innovation": 10,
+                "in": 1,
+                "out": 5,
+                "weight": -0.8933097482294274,
+                "enable": true
+            },
+            {
+                "exist": "true",
+                "innovation": 11,
+                "in": 5,
+                "out": 3,
+                "weight": 0.877953442127914,
+                "enable": false
+            },
+            {
+                "exist": "true",
+                "innovation": 38,
+                "in": 5,
+                "out": 15,
+                "weight": 0.5133765257676726,
+                "enable": true
+            },
+            {
+                "exist": "true",
+                "innovation": 39,
+                "in": 15,
+                "out": 3,
+                "weight": 0.8559733580425548,
+                "enable": true
+            },
+            {
+                "exist": "true",
+                "innovation": 4,
+                "in": 0,
+                "out": 4,
+                "weight": 1.0,
+                "enable": true
+            },
+            {
+                "exist": "true",
+                "innovation": 5,
+                "in": 4,
+                "out": 2,
+                "weight": -0.7545971923313544,
+                "enable": false
+            },
+            {
+                "exist": "true",
+                "innovation": 6,
+                "in": 0,
+                "out": 4,
+                "weight": 0.8638107664834009,
+                "enable": false
+            },
+            {
+                "exist": "true",
+                "innovation": 33,
+                "in": 7,
+                "out": 13,
+                "weight": -0.12856662074614578,
+                "enable": true
+            },
+            {
+                "exist": "true",
+                "innovation": 34,
+                "in": 13,
+                "out": 2,
+                "weight": -0.7341591703614796,
+                "enable": true
+            },
+            {
+                "exist": "true",
+                "innovation": 24,
+                "in": 7,
+                "out": 10,
+                "weight": 1.0,
+                "enable": true
+            },
+            {
+                "exist": "true",
+                "innovation": 25,
+                "in": 10,
+                "out": 2,
+                "weight": 0.8270833456239697,
+                "enable": true
+            },
+            {
+                "exist": "true",
+                "innovation": 35,
+                "in": 4,
+                "out": 14,
+                "weight": 1.0,
+                "enable": true
+            },
+            {
+                "exist": "true",
+                "innovation": 36,
+                "in": 14,
+                "out": 2,
+                "weight": -0.2868377086323344,
+                "enable": true
+            },
+            {
+                "exist": "true",
+                "innovation": 18,
+                "in": 3,
+                "out": 8,
+                "weight": 1.0,
+                "enable": true
+            },
+            {
+                "exist": "true",
+                "innovation": 19,
+                "in": 8,
+                "out": 6,
+                "weight": 0.8783708440091758,
+                "enable": true
+            },
+            {
+                "exist": "true",
+                "innovation": 50,
+                "in": 5,
+                "out": 17,
+                "weight": 0.4977097889162767,
+                "enable": true
+            },
+            {
+                "exist": "true",
+                "innovation": 51,
+                "in": 17,
+                "out": 15,
+                "weight": 0.5424056992748376,
+                "enable": true
+            },
+            {
+                "exist": "true",
+                "innovation": 20,
+                "in": 3,
+                "out": 6,
+                "weight": -0.09167363150153807,
+                "enable": true
+            },
+            {
+                "exist": "true",
+                "innovation": 59,
+                "in": 0,
+                "out": 19,
+                "weight": 1.0,
+                "enable": true
+            },
+            {
+                "exist": "true",
+                "innovation": 60,
+                "in": 19,
+                "out": 4,
+                "weight": 0.7752426724503172,
+                "enable": false
+            },
+            {
+                "exist": "true",
+                "innovation": 71,
+                "in": 19,
+                "out": 24,
+                "weight": 1.0,
+                "enable": true
+            },
+            {
+                "exist": "true",
+                "innovation": 72,
+                "in": 24,
+                "out": 4,
+                "weight": -0.8876477475582465,
+                "enable": true
+            }
+        ]
+    }
+}

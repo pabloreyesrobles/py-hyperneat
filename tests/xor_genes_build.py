@@ -2,7 +2,7 @@ from neat.population import Population
 from neat.neural_network import NeuralNetwork
 from neat.genome import Genome, Phenotype
 from neat.genes import NodeGene, ConnectionGene, NodeType
-from neat.neat import Neat, TrainTask
+from neat.evolution import Neat, TrainTask
 from neat.activation_functions import ActivationFunction
 
 import math

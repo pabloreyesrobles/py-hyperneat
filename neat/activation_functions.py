@@ -109,8 +109,8 @@ class ActivationFunction:
 
     def use_only_sigmoid(self):
         self.functions = {}
-        self.functions['SIGNED_SIGMOID'] = SignedSigmoid
+        self.functions['UNSIGNED_SIGMOID'] = SignedSigmoid
 
     def use_only_tanh(self):
         self.functions = {}
-        self.functions['TANH'] = SignedSigmoid
+        self.functions['TANH'] = Tanh

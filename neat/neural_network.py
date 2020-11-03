@@ -3,7 +3,6 @@ import math
 import json
 from neat.activation_functions import ActivationFunction
 
-
 class Neuron:
 
     def __init__(self, function, layer = -1):
@@ -79,6 +78,10 @@ class NeuralNetwork:
     def activate_multistep(self, steps):
         for i in range(steps):
             self.activate_net()
+    
+    def concurrent_activation(self):
+        iterations = 2 * (len(self.neurons) - (self.num_inputs + self.num_outputs)) - 1
+        self.activate_multistep(iterations)
 
     def recursive_activation(self, neuron_id):
         for conn in self.connections:
@@ -107,8 +110,7 @@ class NeuralNetwork:
     
     def print_neurons(self):
         for i in range(len(self.neurons)):
-            print('Neuron ' + str(i))
-            print('input: ' + str(self.neurons[i].input) + ' - output: ' + str(self.neurons[i].output))
+            print('Neuron' + str(i) + '_input: ' + str(self.neurons[i].input) + ' - output: ' + str(self.neurons[i].output))
 
 #TODO: improve intialization
 class Layer:

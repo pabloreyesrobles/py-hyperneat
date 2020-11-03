@@ -43,7 +43,7 @@ class Neat:
 		try:
 			config = json.load(config_file)
 		except ValueError:
-			print('Invalid config file')
+			print('NEAT: Invalid config file')
 			return False
 
 		genome = Genome()
@@ -63,12 +63,12 @@ class Neat:
 
 			self.input_data = data
 
-	def evaluate_population(self):	
+	def evaluate_population(self, net=None):	
 		self.avg_fitness = 0.0
 		self.best_epoch_fitness = 0.0
 
 		for org in self.pop.organisms:
-			net = org.build_layered_phenotype()
+			net = org.build_phenotype()
 
 			org.fitness = self.fitness_eval(self.input_data, net)
 			self.avg_fitness += org.fitness 
@@ -93,9 +93,13 @@ class Neat:
 		self.pop.speciate()
 
 		self.pop.remove_empty_species()
+
+		for sp in self.pop.species.values():
+			print('Species #{} size: {} avg_fitness: {:.4f} best_fitness: {:.4f} extinct: {}'.format(sp.birth, len(sp.organisms), sp.avg_fitness, sp.best_fitness, sp.extinct))
 		
+		self.epoch_info = 'Generation #{:d}: species = {:d}, champion_fitness = {:f}, avg_generation_fitness = {:f}\n'.format(self.current_generation, len(self.pop.species), self.pop.champion_fitness, self.avg_fitness)
 		if print_stats == True:
-			print('Generation #{:d}: species = {:d}, champion_fitness = {:f}, avg_generation_fitness = {:f}'.format(self.current_generation, len(self.pop.species), self.pop.champion_fitness, self.avg_fitness))
+			print(self.epoch_info)
 
 		self.current_generation += 1
 

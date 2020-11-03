@@ -1,4 +1,7 @@
 {
+	"phenotype": 1,
+	"num_layers": 15,
+	"weight_range": [-1.0, 1.0],
 	"GeneticEncoding":
 	{
 		"nodes":

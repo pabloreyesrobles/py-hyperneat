@@ -18,6 +18,7 @@ class ConnectionGene:
         self.target_layer = target_layer
         self.weight = weight
         self.enable = enable
+        self.mutated = False
 
     def randomize_weight(self, min_val=-1.0, max_val=1.0):
         self.weight = random.uniform(min_val, max_val)
