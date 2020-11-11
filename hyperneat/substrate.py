@@ -27,6 +27,9 @@ class Substrate:
 
 		self.activation_function = None
 
+		# Modular substrate
+		self.coordinates = []
+
 	def import_substrate(self, data):
 		layers = []
 		layer_count = 0

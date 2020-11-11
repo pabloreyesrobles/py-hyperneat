@@ -1,8 +1,9 @@
 from neat.population import Population
-from neat.neural_network import NeuralNetwork, Neuron, Connection
+from neat.neural_network import NeuralNetwork, CTRNN, Neuron, Connection
 from neat.genome import Genome
 from neat.evolution import Neat, TrainTask
 from hyperneat.substrate import Substrate
+from hyperneat.spatial_node import SpatialNode, SpatialNodeType
 
 import json
 import copy
@@ -102,3 +103,124 @@ class Hyperneat:
 						net.add_connection(connection)
 
 		return True
+	
+	# TODO: Inheritance
+	def build_modular_substrate(self, organism, substrate_set, intra_conn_table, inter_conn_table):
+		# Instance of modular Continuous Recurrent Neural Network
+		net = CTRNN([], [], 0, 0)
+
+		# Total amount of input neurons
+		num_inputs = 0
+		num_outputs = 0		
+
+		# Map of the substrate nodes to the CTRNN
+		node_gene_map = {}
+
+		# Get CPPN network
+		cppn = organism.build_substrate()
+
+		for idx, s in enumerate(substrate_set):
+			neuron_cnt = 0	
+			num_inputs += s.input_count
+			num_outputs += s.output_count
+
+			for idy, n in enumerate(s.nodes):
+				# Mapping by substrate pos, node pos in the respective substrate
+				sn_id = (idx, idy)
+				node_gene_map[sn_id] = neuron_cnt
+
+				# Get delay and bias
+				cppn_input_data = np.zeros(8) # cppn.num_inputs
+				x1, y1 = n.coordinates
+
+				# Just first four inputs set, the rest is zero
+				cppn_input_data[0] = s.coordinates[0]
+				cppn_input_data[1] = s.coordinates[1]
+				cppn_input_data[2] = x1
+				cppn_input_data[3] = y1
+
+				cppn.reset_values()
+				cppn.input(cppn_input_data)
+				cppn.concurrent_activation()
+
+				# Neuron delya and bias parameters for CTRNN activation
+				delay = cppn.output()[1]
+				bias = cppn.output()[2]
+				
+				new_neuron = Neuron(s.activation_function)
+				new_neuron.delay = delay
+				new_neuron.bias = bias
+
+				net.neurons.append(new_neuron)
+
+				# Register the id of input and output neurons
+				if n.node_type == SpatialNodeType.INPUT:
+					net.in_neurons.append(neuron_cnt)
+				
+				if n.node_type == SpatialNodeType.OUTPUT:
+					net.out_neurons.append(neuron_cnt)
+				
+				neuron_cnt += 1
+
+			# Assuming every substrate module is equal
+			for c in intra_conn_table:
+				cppn_input_data = np.zeros(8) # cppn.num_inputs
+				x1, y1 = s.nodes[c[0]].coordinates
+				x2, y2 = s.nodes[c[1]].coordinates
+
+				cppn_input_data[0] = s.coordinates[0]
+				cppn_input_data[1] = s.coordinates[1]
+				cppn_input_data[2] = x1
+				cppn_input_data[3] = y1
+				cppn_input_data[4] = s.coordinates[0]
+				cppn_input_data[5] = s.coordinates[1]
+				cppn_input_data[6] = x2
+				cppn_input_data[7] = y2
+
+				cppn.reset_values()
+				cppn.input(cppn_input_data)
+				cppn.concurrent_activation()
+
+				# Intra substrate connection weight
+				w = cppn.output()[0]
+
+				source = node_gene_map[(idx, c[0])]
+				target = node_gene_map[(idx, c[1])]
+
+				net.connections.append(Connection(source, target, w))
+
+		# Compute inter substrate connections
+		for c in inter_conn_table:
+			cppn_input_data = np.zeros(8) # cppn.num_inputs
+
+			# Source and target substrate
+			s_substrate, t_substrate = substrate_set[c[0]], substrate_set[c[2]]
+
+			xm1, ym1 = s_substrate.coordinates
+			x1, y1 = s_substrate.nodes[c[1]].coordinates
+			xm2, ym2 = t_substrate.coordinates
+			x2, y2 = t_substrate.nodes[c[3]].coordinates
+
+			cppn_input_data[0] = xm1
+			cppn_input_data[1] = ym1
+			cppn_input_data[2] = x1
+			cppn_input_data[3] = y1
+			cppn_input_data[4] = xm2
+			cppn_input_data[5] = ym2
+			cppn_input_data[6] = x2
+			cppn_input_data[7] = y2
+
+			cppn.reset_values()
+			cppn.input(cppn_input_data)
+			cppn.concurrent_activation()
+
+			# Inter substrate connection weight
+			w = cppn.output()[0]
+
+			source = node_gene_map[(c[0], c[1])]
+			target = node_gene_map[(c[2], c[3])]
+
+			net.connections.append(Connection(source, target, w))
+
+		net.num_inputs = num_inputs
+		net.num_outputs = num_outputs
