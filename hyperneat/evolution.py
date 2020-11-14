@@ -224,3 +224,5 @@ class Hyperneat:
 
 		net.num_inputs = num_inputs
 		net.num_outputs = num_outputs
+
+		return net

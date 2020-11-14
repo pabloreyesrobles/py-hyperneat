@@ -55,9 +55,34 @@ class Genome:
         
         self.connection_list.append(connection_gene)
         return 0
-    
-    def recompute_complexity(self):
-        self.complexity = len(self.node_list)
+
+    def create_genome_by_size(self, input_size, output_size):
+        node_id_cnt = 0
+        innovation_cnt = 0
+        input_id_arr = []
+        output_id_arr = []
+
+        # Create node genes
+        while input_size > 0:
+            new_node = NodeGene(node_id_cnt, NodeType.INPUT, ActivationFunction().get('TANH'), 0)
+            self.add_node(new_node)
+            input_id_arr.append(node_id_cnt)
+            node_id_cnt += 1
+            input_size -= 1
+        
+        while output_size > 0:
+            self.node_list.append(NodeGene(node_id_cnt, NodeType.OUTPUT, ActivationFunction().get('TANH'), self.num_layers - 1))
+            output_id_arr.append(node_id_cnt)
+            node_id_cnt += 1
+            output_size -= 1
+
+        # Create connection genes
+        for i in input_id_arr:
+            for o in output_id_arr:
+                self.connection_list.append(ConnectionGene(innovation_cnt, i, o, 0.0, True, self.node_list[i].layer, self.node_list[o].layer))
+                innovation_cnt += 1
+
+        self.randomize_weights()
 
     def create_genome_from_genes(self, nodes, connections, phenotype=Phenotype.NONE, num_layers=-1):
         for node_gene in nodes:
@@ -165,6 +190,9 @@ class Genome:
             net.recursive_activation(net.num_inputs + i)
 
         return net.output
+    
+    def recompute_complexity(self):
+        self.complexity = len(self.node_list)
 
     def randomize_weights(self):
         for conn in self.connection_list:
