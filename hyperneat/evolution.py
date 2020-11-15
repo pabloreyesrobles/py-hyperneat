@@ -25,6 +25,10 @@ class Hyperneat:
 		self.connection_threshold = 0.0
 		self.max_connection_weight = 0.0
 
+		# For modular CTRNN
+		self.max_bias = 0.0
+		self.max_delay = 0.0
+
 	def import_config(self, config_file):
 		try:
 			config = json.load(config_file)
@@ -109,18 +113,18 @@ class Hyperneat:
 		# Instance of modular Continuous Recurrent Neural Network
 		net = CTRNN([], [], 0, 0)
 
-		# Total amount of input neurons
+		# Total amount of input, output and total neurons
 		num_inputs = 0
-		num_outputs = 0		
+		num_outputs = 0
+		neuron_cnt = 0
 
 		# Map of the substrate nodes to the CTRNN
 		node_gene_map = {}
 
 		# Get CPPN network
-		cppn = organism.build_substrate()
+		cppn = organism.build_phenotype()
 
 		for idx, s in enumerate(substrate_set):
-			neuron_cnt = 0	
 			num_inputs += s.input_count
 			num_outputs += s.output_count
 
@@ -144,10 +148,12 @@ class Hyperneat:
 				cppn.concurrent_activation()
 
 				# Neuron delya and bias parameters for CTRNN activation
-				delay = cppn.output()[1]
-				bias = cppn.output()[2]
+				delay = cppn.output()[1] * self.max_delay
+				if delay < 0.01: # TODO: redefine output CPPN limits
+					delay = 0.01
+				bias = cppn.output()[2] * self.max_bias
 				
-				new_neuron = Neuron(s.activation_function)
+				new_neuron = Neuron(s.activation_function, max_output=5.0)
 				new_neuron.delay = delay
 				new_neuron.bias = bias
 
@@ -158,6 +164,7 @@ class Hyperneat:
 					net.in_neurons.append(neuron_cnt)
 				
 				if n.node_type == SpatialNodeType.OUTPUT:
+					net.neurons[neuron_cnt].max_output = 2.0
 					net.out_neurons.append(neuron_cnt)
 				
 				neuron_cnt += 1
@@ -182,12 +189,12 @@ class Hyperneat:
 				cppn.concurrent_activation()
 
 				# Intra substrate connection weight
-				w = cppn.output()[0]
+				w = cppn.output()[0] * self.max_connection_weight
 
-				source = node_gene_map[(idx, c[0])]
-				target = node_gene_map[(idx, c[1])]
-
-				net.connections.append(Connection(source, target, w))
+				if math.fabs(w) > self.connection_threshold:
+					source = node_gene_map[(idx, c[0])]
+					target = node_gene_map[(idx, c[1])]
+					net.connections.append(Connection(source, target, w))
 
 		# Compute inter substrate connections
 		for c in inter_conn_table:
@@ -215,12 +222,12 @@ class Hyperneat:
 			cppn.concurrent_activation()
 
 			# Inter substrate connection weight
-			w = cppn.output()[0]
+			w = cppn.output()[0] * self.max_connection_weight
 
-			source = node_gene_map[(c[0], c[1])]
-			target = node_gene_map[(c[2], c[3])]
-
-			net.connections.append(Connection(source, target, w))
+			if math.fabs(w) > self.connection_threshold:
+				source = node_gene_map[(c[0], c[1])]
+				target = node_gene_map[(c[2], c[3])]
+				net.connections.append(Connection(source, target, w))
 
 		net.num_inputs = num_inputs
 		net.num_outputs = num_outputs

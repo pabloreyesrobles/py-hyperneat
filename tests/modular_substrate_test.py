@@ -7,6 +7,7 @@ from neat.genome import Genome
 from neat.activation_functions import ActivationFunction
 from neat.neural_network import NeuralNetwork
 
+import numpy as np
 import os
 import sys
 
@@ -14,14 +15,13 @@ import sys
 genome = Genome(num_layers=15, weights_range=[-3.0, 3.0])
 genome.create_genome_by_size(8, 3)
 net = genome.build_phenotype()
-net.print_connections()
-sys.exit()
 
 # Substrate setting
 # Init substrate set
 substrate_set = []
 for i in range(2):
 	s = Substrate()
+	s.activation_function = ActivationFunction().get('TANH')
 
 	# Must create new objects or deep copies
 	s.input_nodes = [SpatialNode(0, SpatialNodeType.INPUT, [0.0, -0.5], ActivationFunction().get('TANH'), 0)]
@@ -37,16 +37,20 @@ for i in range(2):
 	s.extend_nodes_list()
 	substrate_set.append(s)
 
+substrate_set[0].coordinates = (-0.5, 0.5)
+substrate_set[1].coordinates = (0.5, 0.5)
+
+intra_substrate_conn = [[0, 1], [0, 2], [0, 3], [0, 4], [3, 1], [3, 2], [3, 4], [4, 1], [4, 2], [4, 3]]
+inter_substrate_conn = [[0, 4, 1, 3], [1, 3, 0, 4]]
+
 ea = Hyperneat()
-net = NeuralNetwork([], [], 0, 0)
+ea.connection_threshold = 0.2
+ea.max_connection_weight = 2.0
+ea.max_bias = 0.3
+ea.max_delay = 0.025
 
-substrate_encoding = open(os.path.join('py-hyperneat', 'tests/config_files/xor_hyperneat_substrate.json'), 'r')
-genome_encoding = open(os.path.join('py-hyperneat', 'tests/config_files/testGenome.json'), 'r')
+net = ea.build_modular_substrate(genome, substrate_set, intra_substrate_conn, inter_substrate_conn)
+net.reset_values()
 
-genome.import_genome(genome_encoding)
-ea.import_config(substrate_encoding)
-
-ea.build_substrate(genome, net)
-net.input([0.0, 1.0])
-net.concurrent_activation()
-print(net.output())
+time = np.linspace(0, 10, 10 / 0.05)
+signal = np.sin(time)

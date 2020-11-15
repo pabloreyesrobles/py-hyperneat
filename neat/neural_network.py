@@ -5,7 +5,7 @@ from neat.activation_functions import ActivationFunction
 
 class Neuron:
 
-    def __init__(self, function, layer=-1, delay=0.0, bias=0.0):
+    def __init__(self, function, layer=-1, delay=0.0, bias=0.0, max_output=0.0):
         self.input = 0.0
         self.output = 0.0
         self.activated = False
@@ -16,6 +16,8 @@ class Neuron:
         # For CTRNN
         self.delay = delay
         self.bias = bias
+
+        self.max_output = max_output
 
     def activate(self):
         self.output = self.function(self.input)
@@ -85,6 +87,8 @@ class NeuralNetwork:
     
     def concurrent_activation(self):
         iterations = 2 * (len(self.neurons) - (self.num_inputs + self.num_outputs)) - 1
+        if iterations < 1:
+            iterations = 1
         self.activate_multistep(iterations)
 
     def recursive_activation(self, neuron_id):
@@ -174,19 +178,35 @@ class CTRNN(NeuralNetwork):
         self.in_neurons = []
         self.out_neurons = []
 
+    def input(self, input_data):
+        for i, idx in enumerate(self.in_neurons):
+            self.neurons[idx].input = input_data[i]
+
     def activate_net(self, step_time):
+        """
         # First input neurons adding connections to input signal. 
         for idx, neuron in enumerate(self.neurons[:self.num_inputs]):
-            neuron.input += np.sum([conn.signal for conn in self.connections if conn.target == idx])
+            neuron.input += np.sum([conn.signal for conn in self.connections if conn.target_id == idx])
             neuron_activation = neuron.function(neuron.input + neuron.bias)
-            neuron.output += step_time / neuron.delta * (-neuron.output + neuron_activation)
+            neuron.output += step_time / neuron.delay * (-neuron.output + neuron_activation)
 
         # Now iterate over the rest of neurons   
         for idx, neuron in enumerate(self.neurons[self.num_inputs:len(self.neurons)]):
-            neuron.input = np.sum([conn.signal for conn in self.connections if conn.target == idx])
+            neuron.input = np.sum([conn.signal for conn in self.connections if conn.target_id == idx])
             neuron_activation = neuron.function(neuron.input + neuron.bias)
-            neuron.output += step_time / neuron.delta * (-neuron.output + neuron_activation)
+            neuron.output += step_time / neuron.delay * (-neuron.output + neuron_activation)
             neuron.input = 0.0 # This should solve the previous loop
+        """
+        for idx, neuron in enumerate(self.neurons):
+            if idx in self.in_neurons:
+                neuron.input += np.sum([conn.signal for conn in self.connections if conn.target_id == idx])
+            else:
+                neuron.input = np.sum([conn.signal for conn in self.connections if conn.target_id == idx])
+            neuron_activation = neuron.function(neuron.input + neuron.bias)
+            neuron.output += step_time / neuron.delay * (-neuron.output + neuron_activation)
+            if np.fabs(neuron.output) > neuron.max_output:
+                neuron.output = np.sign(neuron.output) * neuron.max_output
+            #neuron.input = 0.0
 
         # Update connections signals for the next step
         for conn in self.connections:
