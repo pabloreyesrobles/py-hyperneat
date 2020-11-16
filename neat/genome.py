@@ -71,7 +71,7 @@ class Genome:
             input_size -= 1
         
         while output_size > 0:
-            new_node = NodeGene(node_id_cnt, NodeType.OUTPUT, ActivationFunction().get('UNSIGNED_SIGMOID'), self.num_layers - 1)
+            new_node = NodeGene(node_id_cnt, NodeType.OUTPUT, ActivationFunction().get('TANH'), self.num_layers - 1)
             self.add_node(new_node)
             output_id_arr.append(node_id_cnt)
             node_id_cnt += 1

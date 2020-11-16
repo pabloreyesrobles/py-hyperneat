@@ -148,9 +148,9 @@ class Hyperneat:
 				cppn.concurrent_activation()
 
 				# Neuron delya and bias parameters for CTRNN activation
-				delay = cppn.output()[1] * self.max_delay
-				if delay < 0.01: # TODO: redefine output CPPN limits
-					delay = 0.01
+				delay = np.fabs(cppn.output()[1]) * self.max_delay
+				if delay < 0.5: # TODO: redefine output CPPN limits
+					delay = 0.5
 				bias = cppn.output()[2] * self.max_bias
 				
 				new_neuron = Neuron(s.activation_function, max_output=5.0)
@@ -170,7 +170,7 @@ class Hyperneat:
 				neuron_cnt += 1
 
 			# Assuming every substrate module is equal
-			for c in intra_conn_table:
+			for c in intra_conn_table[idx]:
 				cppn_input_data = np.zeros(8) # cppn.num_inputs
 				x1, y1 = s.nodes[c[0]].coordinates
 				x2, y2 = s.nodes[c[1]].coordinates
