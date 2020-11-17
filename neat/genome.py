@@ -155,9 +155,9 @@ class Genome:
 
         return data
 
-    def save_genome(self):
+    def save_genome(self, filename='champion.json'):
         data = self.export_genome()
-        with open('champion.json', 'w') as outfile:
+        with open(filename, 'w') as outfile:
             json.dump(data, outfile, indent=4)
 
     def build_phenotype(self):

@@ -82,7 +82,7 @@ class NeuralNetwork:
             self.neurons[i].input = 0.0
     
     def activate_multistep(self, steps):
-        for i in range(steps):
+        for _ in range(steps):
             self.activate_net()
     
     def concurrent_activation(self):
@@ -182,6 +182,13 @@ class CTRNN(NeuralNetwork):
         for i, idx in enumerate(self.in_neurons):
             self.neurons[idx].input = input_data[i]
 
+    def output(self):
+        output_data = np.zeros(len(self.out_neurons))
+        for i, idx in enumerate(self.out_neurons):
+            neuron = self.neurons[idx]
+            output_data[i] = neuron.function(neuron.output)
+        return output_data
+
     def activate_net(self, step_time):
         """
         # First input neurons adding connections to input signal. 
@@ -202,12 +209,15 @@ class CTRNN(NeuralNetwork):
                 neuron.input += np.sum([conn.signal for conn in self.connections if conn.target_id == idx])
             else:
                 neuron.input = np.sum([conn.signal for conn in self.connections if conn.target_id == idx])
-            neuron_activation = neuron.function(neuron.input + neuron.bias)
-            neuron.output += step_time / neuron.delay * (-neuron.output + neuron_activation)
+            #neuron_activation = neuron.function(neuron.input + neuron.bias)
+            #neuron.output += step_time / neuron.delay * (-neuron.output + neuron_activation)
+            neuron.output += step_time / neuron.delay * (-neuron.output + neuron.input + neuron.bias)
+
             if np.fabs(neuron.output) > neuron.max_output:
                 neuron.output = np.sign(neuron.output) * neuron.max_output
             #neuron.input = 0.0
 
         # Update connections signals for the next step
         for conn in self.connections:
-            conn.signal = self.neurons[conn.source_id].output * conn.weight
+            neuron = self.neurons[conn.source_id]
+            conn.signal = neuron.function(neuron.output) * conn.weight

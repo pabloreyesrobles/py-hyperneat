@@ -149,11 +149,11 @@ class Hyperneat:
 
 				# Neuron delya and bias parameters for CTRNN activation
 				delay = np.fabs(cppn.output()[1]) * self.max_delay
-				if delay < 0.5: # TODO: redefine output CPPN limits
-					delay = 0.5
+				if delay < 0.1: # TODO: redefine output CPPN limits
+					delay = 0.1
 				bias = cppn.output()[2] * self.max_bias
 				
-				new_neuron = Neuron(s.activation_function, max_output=5.0)
+				new_neuron = Neuron(n.function, max_output=3.0)
 				new_neuron.delay = delay
 				new_neuron.bias = bias
 
@@ -164,7 +164,7 @@ class Hyperneat:
 					net.in_neurons.append(neuron_cnt)
 				
 				if n.node_type == SpatialNodeType.OUTPUT:
-					net.neurons[neuron_cnt].max_output = 2.0
+					net.neurons[neuron_cnt].max_output = np.deg2rad(60)
 					net.out_neurons.append(neuron_cnt)
 				
 				neuron_cnt += 1
@@ -202,7 +202,7 @@ class Hyperneat:
 
 			# Source and target substrate
 			s_substrate, t_substrate = substrate_set[c[0]], substrate_set[c[2]]
-
+			
 			xm1, ym1 = s_substrate.coordinates
 			x1, y1 = s_substrate.nodes[c[1]].coordinates
 			xm2, ym2 = t_substrate.coordinates

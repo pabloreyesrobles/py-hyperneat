@@ -52,9 +52,9 @@ hid_out_sub.extend_nodes_list()
 hid_out_conn = [[1, 0], [2, 0], [1, 2], [2, 1]]
 substrate_set.append(hid_out_sub)
 
-substrate_set[0].coordinates = (-0.5, 0.5)
-substrate_set[1].coordinates = (0.5, 0.5)
-substrate_set[2].coordinates = (0.0, 0.5)
+substrate_set[0].coordinates = (-0.75, -0.75)
+substrate_set[1].coordinates = (0.75, -0.75)
+substrate_set[2].coordinates = (0.0, 0.75)
 
 intra_conn_set = []
 for _ in range(2):
@@ -62,10 +62,10 @@ for _ in range(2):
 intra_conn_set.append(hid_out_conn)
 
 ea = Hyperneat()
-ea.connection_threshold = 0.7
-ea.max_connection_weight = 3.0
-ea.max_bias = 1.2
-ea.max_delay = 8.0
+ea.connection_threshold = 0.1
+ea.max_connection_weight = 2.0
+ea.max_bias = 0.5
+ea.max_delay = 0.8
 
 net = ea.build_modular_substrate(genome, substrate_set, intra_conn_set, inter_substrate_conn)
 net.reset_values()

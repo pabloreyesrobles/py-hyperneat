@@ -577,9 +577,16 @@ class Population:
 		for sp in self.species.values():
 			sp.organisms = []
 
+			if sp.extinct == True:
+				continue
+
 			distances = []
 			for org in self.organisms:
 				distances.append(self.compatibility(org, sp.representant))
+
+			if np.min(distances) >= self.params.distance_threshold:
+				sp.extinct = True
+				continue
 
 			idx = np.argmin(distances)
 			sp.representant = self.organisms[idx]
@@ -619,17 +626,20 @@ class Population:
 				
 				distances = []
 				for key, sp in self.species.items():
+					if sp.extinct == True:
+						continue
 					distances.append([key, self.compatibility(self.organisms[0], sp.representant)])
 					#print('Compability vs threshold: {:.4f} - {:.4f}'.format(compatibility, self.params.distance_threshold))
 
-				min_idx, min_dist = min(distances, key=lambda x: x[1])
+				if len(distances) > 0:
+					min_idx, min_dist = min(distances, key=lambda x: x[1])
 
-				if min_dist < self.params.distance_threshold:
-					compatible_species = True
-					self.species[min_idx].organisms.append(self.organisms[0])
+					if min_dist < self.params.distance_threshold:
+						compatible_species = True
+						self.species[min_idx].organisms.append(self.organisms[0])
 
-					self.organisms[0].parent_species = min_idx
-					speciated.append(self.organisms.pop(0))
+						self.organisms[0].parent_species = min_idx
+						speciated.append(self.organisms.pop(0))
 				
 				if compatible_species is False:
 					new_species = Species()
@@ -670,8 +680,8 @@ class Population:
 			sp.avg_fitness = 0.0
 
 			sp.update_champion()
-			#if sp.age - sp.last_improvement_age > 8: # TESTING
-			#	sp.extinct = True
+			if sp.age - sp.last_improvement_age > 8: # TESTING
+				sp.extinct = True
 
 			if sp.best_organism.fitness >= self.champion_fitness:
 				self.champion_fitness = sp.best_organism.fitness
@@ -688,7 +698,7 @@ class Population:
 		for sp in self.species.values():
 			#if sp.extinct == True:
 			#	continue
-			if pop_avg_shared_fitness == 0:
+			if pop_avg_shared_fitness == 0 or sp.extinct == True:
 				sp.offspring = 0.0
 			else:
 				sp.offspring = sp.avg_fitness / pop_avg_shared_fitness
@@ -696,7 +706,7 @@ class Population:
 	def remove_empty_species(self):
 		species_to_remove = []
 		for sp_id in self.species:
-			if len(self.species[sp_id].organisms) == 0:
+			if len(self.species[sp_id].organisms) == 0 or self.species[sp_id].extinct == True:
 				species_to_remove.append(sp_id)
 				continue
 
